@@ -155,7 +155,17 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
             If useSiteDiagnostic IsNot Nothing Then
                 diagnostics.Add(useSiteDiagnostic, NoLocation.Singleton)
             End If
-            resultType = compilation.GetTypeByReflectionType(submissionReturnType, diagnostics)
+            ' if no explicit return type is set on ScriptCompilationInfo, it will default to
+            ' the _host_ corlib's System.Object (GetType(object)) and should never be null.
+            ' In this case, redirect the host System.Object to the compilation's target
+            ' corlib's System.Object. This allows cross compiling scripts to build on one
+            ' corlib and run on another.
+            ' cf. https://github.com/dotnet/roslyn/issues/8506
+            If submissionReturnType Is GetType(Object) Then
+                resultType = compilation.GetSpecialType(SpecialType.System_Object)
+            Else
+                resultType = compilation.GetTypeByReflectionType(submissionReturnType, diagnostics)
+            End If
             returnType = taskT.Construct(resultType)
         End Sub
 

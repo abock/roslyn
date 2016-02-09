@@ -237,7 +237,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 diagnostics.Add(useSiteDiagnostic, NoLocation.Singleton);
             }
-            resultType = compilation.GetTypeByReflectionType(submissionReturnType, diagnostics);
+            // if no explicit return type is set on ScriptCompilationInfo, it will default to
+            // the _host_ corlib's System.Object (typeof(object)) and should never be null.
+            // In this case, redirect the host System.Object to the compilation's target
+            // corlib's System.Object. This allows cross compiling scripts to build on one
+            // corlib and run on another.
+            // cf. https://github.com/dotnet/roslyn/issues/8506
+            resultType = submissionReturnType == typeof(object)
+                ? compilation.GetSpecialType(SpecialType.System_Object)
+                : compilation.GetTypeByReflectionType(submissionReturnType, diagnostics);
             returnType = taskT.Construct(resultType);
         }
     }
