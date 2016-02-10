@@ -133,10 +133,13 @@
     <Content Include="NetFX\aacorlib\Key.snk" />
     <EmbeddedResource Include="NetFX\Minimal\minasync.dll" />
     <EmbeddedResource Include="NetFX\Minimal\mincorlib.dll" />
+    <EmbeddedResource Include="NetFX\Minimal\mincorlib_script.dll" />
     <Content Include="NetFX\Minimal\build.cmd" />
+    <Content Include="NetFX\Minimal\build.sh" />
     <Content Include="NetFX\Minimal\Key.snk" />
     <Content Include="NetFX\Minimal\minasync.cs" />
     <Content Include="NetFX\Minimal\mincorlib.cs" />
+    <Content Include="NetFX\Minimal\mincorlib_script.cs" />
     <Content Include="SymbolsTests\NoPia\ParametersWithoutNames.cs" />
     <EmbeddedResource Include="PerfTests\CSPerfTest.cs" />
     <Content Include="Resources\License.txt" />

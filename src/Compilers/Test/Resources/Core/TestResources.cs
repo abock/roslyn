@@ -165,6 +165,9 @@ namespace TestResources.NetFX
 
         private static byte[] s_minasync;
         public static byte[] minasync => ResourceLoader.GetOrCreateResource(ref s_minasync, "NetFX.Minimal.minasync.dll");
+
+        private static byte[] s_mincorlib_script;
+        public static byte[] mincorlib_script => ResourceLoader.GetOrCreateResource(ref s_mincorlib_script, "NetFX.Minimal.mincorlib_script.dll");
     }
 }
 

@@ -325,6 +325,20 @@ namespace Roslyn.Test.Utilities
 
         public static MetadataReference MinCorlibRef => TestReferences.NetFx.Minimal.mincorlib;
 
+        private static MetadataReference s_scriptMinCorlibRef;
+        public static MetadataReference ScriptMinCorlibRef
+        {
+            get
+            {
+                if (s_scriptMinCorlibRef == null)
+                {
+                    s_scriptMinCorlibRef = AssemblyMetadata.CreateFromImage(TestResources.NetFX.Minimal.mincorlib_script).GetReference(display: "minCorLibScript.dll");
+                }
+
+                return s_scriptMinCorlibRef;
+            }
+        }
+
         private static MetadataReference s_msvbRef;
         public static MetadataReference MsvbRef
         {
