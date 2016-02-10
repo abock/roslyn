@@ -162,6 +162,9 @@ namespace TestResources.NetFX
     {
         private static byte[] s_mincorlib;
         public static byte[] mincorlib => ResourceLoader.GetOrCreateResource(ref s_mincorlib, "NetFX.Minimal.mincorlib.dll");
+
+        private static byte[] s_mincorlib_script;
+        public static byte[] mincorlib_script => ResourceLoader.GetOrCreateResource(ref s_mincorlib_script, "NetFX.Minimal.mincorlib_script.dll");
     }
 }
 

@@ -130,9 +130,12 @@
     <Content Include="MetadataTests\NetModule01\ModuleVB01.vb.txt" />
     <EmbeddedResource Include="NetFX\aacorlib\aacorlib.v15.0.3928.cs" />
     <Content Include="NetFX\Minimal\build.cmd" />
+    <Content Include="NetFX\Minimal\build.sh" />
     <Content Include="NetFX\Minimal\Key.snk" />
     <Content Include="NetFX\Minimal\mincorlib.cs" />
+    <Content Include="NetFX\Minimal\mincorlib_script.cs" />
     <EmbeddedResource Include="NetFX\Minimal\mincorlib.dll" />
+    <EmbeddedResource Include="NetFX\Minimal\mincorlib_script.dll" />
     <EmbeddedResource Include="PerfTests\CSPerfTest.cs" />
     <Content Include="Resources\License.txt" />
     <Content Include="Resources\nativeCOFFResources.obj" />

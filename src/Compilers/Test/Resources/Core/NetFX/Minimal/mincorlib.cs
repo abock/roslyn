@@ -26,6 +26,7 @@ namespace System
     public class ValueType {}
     public class Enum {}
     public struct Void { }
+    public struct Decimal { } // required for Mono's mcs to build a corlib
 
     public struct RuntimeTypeHandle { }
     public struct RuntimeFieldHandle { }
