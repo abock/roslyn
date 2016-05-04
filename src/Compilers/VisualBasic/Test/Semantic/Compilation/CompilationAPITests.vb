@@ -1296,6 +1296,25 @@ End Class
             Assert.Equal("ModuleAssemblyName", c.Assembly.Identity.Name)
         End Sub
 
+        <WorkItem(8506, "https://github.com/dotnet/roslyn/issues/8506")>
+        <Fact()>
+        Public Sub CrossCorlibSystemObjectReturnType_Script()
+            ' The ScriptMinCorlibRef corlib is used since it provides just enough corlib type
+            ' definitions, including the Task APIs necessary for script hosting, yet can't provide
+            ' provide `System.Object, mscorlib, Version=4.0.0.0` (since it's unversioned).
+            '
+            ' In the original bug, Xamarin iOS, Android, and Mac Mobile profile corlibs were
+            ' realistic cross-compilation targets.
+            Dim source = "? True"
+            Dim compilation = VisualBasicCompilation.CreateScriptCompilation(
+                "sub",
+                references:={ScriptMinCorlibRef},
+                syntaxTree:=Parse(source, options:=TestOptions.Script))
+            compilation.VerifyDiagnostics()
+            Dim entryPoint = compilation.GetEntryPoint(Nothing)
+            Assert.Same(compilation.ObjectType, entryPoint.ReturnType)
+        End Sub
+
         <WorkItem(3719, "https://github.com/dotnet/roslyn/issues/3719")>
         <Fact()>
         Public Sub GetEntryPoint_Script()
