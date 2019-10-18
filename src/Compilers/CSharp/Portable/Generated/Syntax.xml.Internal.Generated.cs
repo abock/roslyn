@@ -29945,6 +29945,139 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         }
     }
 
+    internal sealed partial class GlobalsDirectiveTriviaSyntax : DirectiveTriviaSyntax
+    {
+        internal readonly SyntaxToken hashToken;
+        internal readonly SyntaxToken globalsKeyword;
+        internal readonly SyntaxToken file;
+        internal readonly SyntaxToken endOfDirectiveToken;
+        internal readonly bool isActive;
+
+        internal GlobalsDirectiveTriviaSyntax(SyntaxKind kind, SyntaxToken hashToken, SyntaxToken globalsKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive, DiagnosticInfo[] diagnostics, SyntaxAnnotation[] annotations)
+          : base(kind, diagnostics, annotations)
+        {
+            this.SlotCount = 4;
+            this.AdjustFlagsAndWidth(hashToken);
+            this.hashToken = hashToken;
+            this.AdjustFlagsAndWidth(globalsKeyword);
+            this.globalsKeyword = globalsKeyword;
+            this.AdjustFlagsAndWidth(file);
+            this.file = file;
+            this.AdjustFlagsAndWidth(endOfDirectiveToken);
+            this.endOfDirectiveToken = endOfDirectiveToken;
+            this.isActive = isActive;
+        }
+
+        internal GlobalsDirectiveTriviaSyntax(SyntaxKind kind, SyntaxToken hashToken, SyntaxToken globalsKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive, SyntaxFactoryContext context)
+          : base(kind)
+        {
+            this.SetFactoryContext(context);
+            this.SlotCount = 4;
+            this.AdjustFlagsAndWidth(hashToken);
+            this.hashToken = hashToken;
+            this.AdjustFlagsAndWidth(globalsKeyword);
+            this.globalsKeyword = globalsKeyword;
+            this.AdjustFlagsAndWidth(file);
+            this.file = file;
+            this.AdjustFlagsAndWidth(endOfDirectiveToken);
+            this.endOfDirectiveToken = endOfDirectiveToken;
+            this.isActive = isActive;
+        }
+
+        internal GlobalsDirectiveTriviaSyntax(SyntaxKind kind, SyntaxToken hashToken, SyntaxToken globalsKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+          : base(kind)
+        {
+            this.SlotCount = 4;
+            this.AdjustFlagsAndWidth(hashToken);
+            this.hashToken = hashToken;
+            this.AdjustFlagsAndWidth(globalsKeyword);
+            this.globalsKeyword = globalsKeyword;
+            this.AdjustFlagsAndWidth(file);
+            this.file = file;
+            this.AdjustFlagsAndWidth(endOfDirectiveToken);
+            this.endOfDirectiveToken = endOfDirectiveToken;
+            this.isActive = isActive;
+        }
+
+        public override SyntaxToken HashToken => this.hashToken;
+        public SyntaxToken GlobalsKeyword => this.globalsKeyword;
+        public SyntaxToken File => this.file;
+        public override SyntaxToken EndOfDirectiveToken => this.endOfDirectiveToken;
+        public override bool IsActive => this.isActive;
+
+        internal override GreenNode? GetSlot(int index)
+            => index switch
+            {
+                0 => this.hashToken,
+                1 => this.globalsKeyword,
+                2 => this.file,
+                3 => this.endOfDirectiveToken,
+                _ => null,
+            };
+
+        internal override SyntaxNode CreateRed(SyntaxNode? parent, int position) => new CSharp.Syntax.GlobalsDirectiveTriviaSyntax(this, parent, position);
+
+        public override void Accept(CSharpSyntaxVisitor visitor) => visitor.VisitGlobalsDirectiveTrivia(this);
+        public override TResult Accept<TResult>(CSharpSyntaxVisitor<TResult> visitor) => visitor.VisitGlobalsDirectiveTrivia(this);
+
+        public GlobalsDirectiveTriviaSyntax Update(SyntaxToken hashToken, SyntaxToken globalsKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+        {
+            if (hashToken != this.HashToken || globalsKeyword != this.GlobalsKeyword || file != this.File || endOfDirectiveToken != this.EndOfDirectiveToken)
+            {
+                var newNode = SyntaxFactory.GlobalsDirectiveTrivia(hashToken, globalsKeyword, file, endOfDirectiveToken, isActive);
+                var diags = GetDiagnostics();
+                if (diags?.Length > 0)
+                    newNode = newNode.WithDiagnosticsGreen(diags);
+                var annotations = GetAnnotations();
+                if (annotations?.Length > 0)
+                    newNode = newNode.WithAnnotationsGreen(annotations);
+                return newNode;
+            }
+
+            return this;
+        }
+
+        internal override GreenNode SetDiagnostics(DiagnosticInfo[] diagnostics)
+            => new GlobalsDirectiveTriviaSyntax(this.Kind, this.hashToken, this.globalsKeyword, this.file, this.endOfDirectiveToken, this.isActive, diagnostics, GetAnnotations());
+
+        internal override GreenNode SetAnnotations(SyntaxAnnotation[] annotations)
+            => new GlobalsDirectiveTriviaSyntax(this.Kind, this.hashToken, this.globalsKeyword, this.file, this.endOfDirectiveToken, this.isActive, GetDiagnostics(), annotations);
+
+        internal GlobalsDirectiveTriviaSyntax(ObjectReader reader)
+          : base(reader)
+        {
+            this.SlotCount = 4;
+            var hashToken = (SyntaxToken)reader.ReadValue();
+            AdjustFlagsAndWidth(hashToken);
+            this.hashToken = hashToken;
+            var globalsKeyword = (SyntaxToken)reader.ReadValue();
+            AdjustFlagsAndWidth(globalsKeyword);
+            this.globalsKeyword = globalsKeyword;
+            var file = (SyntaxToken)reader.ReadValue();
+            AdjustFlagsAndWidth(file);
+            this.file = file;
+            var endOfDirectiveToken = (SyntaxToken)reader.ReadValue();
+            AdjustFlagsAndWidth(endOfDirectiveToken);
+            this.endOfDirectiveToken = endOfDirectiveToken;
+            this.isActive = (bool)reader.ReadBoolean();
+        }
+
+        internal override void WriteTo(ObjectWriter writer)
+        {
+            base.WriteTo(writer);
+            writer.WriteValue(this.hashToken);
+            writer.WriteValue(this.globalsKeyword);
+            writer.WriteValue(this.file);
+            writer.WriteValue(this.endOfDirectiveToken);
+            writer.WriteBoolean(this.isActive);
+        }
+
+        static GlobalsDirectiveTriviaSyntax()
+        {
+            ObjectBinder.RegisterTypeReader(typeof(GlobalsDirectiveTriviaSyntax), r => new GlobalsDirectiveTriviaSyntax(r));
+        }
+    }
+
     internal sealed partial class ShebangDirectiveTriviaSyntax : DirectiveTriviaSyntax
     {
         internal readonly SyntaxToken hashToken;
@@ -30438,6 +30571,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         public virtual TResult VisitPragmaChecksumDirectiveTrivia(PragmaChecksumDirectiveTriviaSyntax node) => this.DefaultVisit(node);
         public virtual TResult VisitReferenceDirectiveTrivia(ReferenceDirectiveTriviaSyntax node) => this.DefaultVisit(node);
         public virtual TResult VisitLoadDirectiveTrivia(LoadDirectiveTriviaSyntax node) => this.DefaultVisit(node);
+        public virtual TResult VisitGlobalsDirectiveTrivia(GlobalsDirectiveTriviaSyntax node) => this.DefaultVisit(node);
         public virtual TResult VisitShebangDirectiveTrivia(ShebangDirectiveTriviaSyntax node) => this.DefaultVisit(node);
         public virtual TResult VisitNullableDirectiveTrivia(NullableDirectiveTriviaSyntax node) => this.DefaultVisit(node);
     }
@@ -30657,6 +30791,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         public virtual void VisitPragmaChecksumDirectiveTrivia(PragmaChecksumDirectiveTriviaSyntax node) => this.DefaultVisit(node);
         public virtual void VisitReferenceDirectiveTrivia(ReferenceDirectiveTriviaSyntax node) => this.DefaultVisit(node);
         public virtual void VisitLoadDirectiveTrivia(LoadDirectiveTriviaSyntax node) => this.DefaultVisit(node);
+        public virtual void VisitGlobalsDirectiveTrivia(GlobalsDirectiveTriviaSyntax node) => this.DefaultVisit(node);
         public virtual void VisitShebangDirectiveTrivia(ShebangDirectiveTriviaSyntax node) => this.DefaultVisit(node);
         public virtual void VisitNullableDirectiveTrivia(NullableDirectiveTriviaSyntax node) => this.DefaultVisit(node);
     }
@@ -31301,6 +31436,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         public override CSharpSyntaxNode VisitLoadDirectiveTrivia(LoadDirectiveTriviaSyntax node)
             => node.Update((SyntaxToken)Visit(node.HashToken), (SyntaxToken)Visit(node.LoadKeyword), (SyntaxToken)Visit(node.File), (SyntaxToken)Visit(node.EndOfDirectiveToken), node.IsActive);
+
+        public override CSharpSyntaxNode VisitGlobalsDirectiveTrivia(GlobalsDirectiveTriviaSyntax node)
+            => node.Update((SyntaxToken)Visit(node.HashToken), (SyntaxToken)Visit(node.GlobalsKeyword), (SyntaxToken)Visit(node.File), (SyntaxToken)Visit(node.EndOfDirectiveToken), node.IsActive);
 
         public override CSharpSyntaxNode VisitShebangDirectiveTrivia(ShebangDirectiveTriviaSyntax node)
             => node.Update((SyntaxToken)Visit(node.HashToken), (SyntaxToken)Visit(node.ExclamationToken), (SyntaxToken)Visit(node.EndOfDirectiveToken), node.IsActive);
@@ -35829,6 +35967,22 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             #endif
 
             return new LoadDirectiveTriviaSyntax(SyntaxKind.LoadDirectiveTrivia, hashToken, loadKeyword, file, endOfDirectiveToken, isActive, this.context);
+        }
+
+        public GlobalsDirectiveTriviaSyntax GlobalsDirectiveTrivia(SyntaxToken hashToken, SyntaxToken globalsKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+        {
+            #if DEBUG
+            if (hashToken == null) throw new ArgumentNullException(nameof(hashToken));
+            if (hashToken.Kind != SyntaxKind.HashToken) throw new ArgumentException(nameof(hashToken));
+            if (globalsKeyword == null) throw new ArgumentNullException(nameof(globalsKeyword));
+            if (globalsKeyword.Kind != SyntaxKind.GlobalsKeyword) throw new ArgumentException(nameof(globalsKeyword));
+            if (file == null) throw new ArgumentNullException(nameof(file));
+            if (file.Kind != SyntaxKind.StringLiteralToken) throw new ArgumentException(nameof(file));
+            if (endOfDirectiveToken == null) throw new ArgumentNullException(nameof(endOfDirectiveToken));
+            if (endOfDirectiveToken.Kind != SyntaxKind.EndOfDirectiveToken) throw new ArgumentException(nameof(endOfDirectiveToken));
+            #endif
+
+            return new GlobalsDirectiveTriviaSyntax(SyntaxKind.GlobalsDirectiveTrivia, hashToken, globalsKeyword, file, endOfDirectiveToken, isActive, this.context);
         }
 
         public ShebangDirectiveTriviaSyntax ShebangDirectiveTrivia(SyntaxToken hashToken, SyntaxToken exclamationToken, SyntaxToken endOfDirectiveToken, bool isActive)
@@ -40395,6 +40549,22 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return new LoadDirectiveTriviaSyntax(SyntaxKind.LoadDirectiveTrivia, hashToken, loadKeyword, file, endOfDirectiveToken, isActive);
         }
 
+        public static GlobalsDirectiveTriviaSyntax GlobalsDirectiveTrivia(SyntaxToken hashToken, SyntaxToken globalsKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+        {
+            #if DEBUG
+            if (hashToken == null) throw new ArgumentNullException(nameof(hashToken));
+            if (hashToken.Kind != SyntaxKind.HashToken) throw new ArgumentException(nameof(hashToken));
+            if (globalsKeyword == null) throw new ArgumentNullException(nameof(globalsKeyword));
+            if (globalsKeyword.Kind != SyntaxKind.GlobalsKeyword) throw new ArgumentException(nameof(globalsKeyword));
+            if (file == null) throw new ArgumentNullException(nameof(file));
+            if (file.Kind != SyntaxKind.StringLiteralToken) throw new ArgumentException(nameof(file));
+            if (endOfDirectiveToken == null) throw new ArgumentNullException(nameof(endOfDirectiveToken));
+            if (endOfDirectiveToken.Kind != SyntaxKind.EndOfDirectiveToken) throw new ArgumentException(nameof(endOfDirectiveToken));
+            #endif
+
+            return new GlobalsDirectiveTriviaSyntax(SyntaxKind.GlobalsDirectiveTrivia, hashToken, globalsKeyword, file, endOfDirectiveToken, isActive);
+        }
+
         public static ShebangDirectiveTriviaSyntax ShebangDirectiveTrivia(SyntaxToken hashToken, SyntaxToken exclamationToken, SyntaxToken endOfDirectiveToken, bool isActive)
         {
             #if DEBUG
@@ -40657,6 +40827,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 typeof(PragmaChecksumDirectiveTriviaSyntax),
                 typeof(ReferenceDirectiveTriviaSyntax),
                 typeof(LoadDirectiveTriviaSyntax),
+                typeof(GlobalsDirectiveTriviaSyntax),
                 typeof(ShebangDirectiveTriviaSyntax),
                 typeof(NullableDirectiveTriviaSyntax),
             };

@@ -1087,6 +1087,7 @@ directive_trivia
   | end_if_directive_trivia
   | end_region_directive_trivia
   | error_directive_trivia
+  | globals_directive_trivia
   | line_directive_trivia
   | load_directive_trivia
   | nullable_directive_trivia
@@ -1139,6 +1140,10 @@ end_region_directive_trivia
 
 error_directive_trivia
   : '#' 'error'
+  ;
+
+globals_directive_trivia
+  : '#' 'globals' string_literal_token
   ;
 
 line_directive_trivia

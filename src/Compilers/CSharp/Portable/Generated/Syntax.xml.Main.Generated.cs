@@ -652,6 +652,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <summary>Called when the visitor visits a LoadDirectiveTriviaSyntax node.</summary>
         public virtual TResult VisitLoadDirectiveTrivia(LoadDirectiveTriviaSyntax node) => this.DefaultVisit(node);
 
+        /// <summary>Called when the visitor visits a GlobalsDirectiveTriviaSyntax node.</summary>
+        public virtual TResult VisitGlobalsDirectiveTrivia(GlobalsDirectiveTriviaSyntax node) => this.DefaultVisit(node);
+
         /// <summary>Called when the visitor visits a ShebangDirectiveTriviaSyntax node.</summary>
         public virtual TResult VisitShebangDirectiveTrivia(ShebangDirectiveTriviaSyntax node) => this.DefaultVisit(node);
 
@@ -1300,6 +1303,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <summary>Called when the visitor visits a LoadDirectiveTriviaSyntax node.</summary>
         public virtual void VisitLoadDirectiveTrivia(LoadDirectiveTriviaSyntax node) => this.DefaultVisit(node);
 
+        /// <summary>Called when the visitor visits a GlobalsDirectiveTriviaSyntax node.</summary>
+        public virtual void VisitGlobalsDirectiveTrivia(GlobalsDirectiveTriviaSyntax node) => this.DefaultVisit(node);
+
         /// <summary>Called when the visitor visits a ShebangDirectiveTriviaSyntax node.</summary>
         public virtual void VisitShebangDirectiveTrivia(ShebangDirectiveTriviaSyntax node) => this.DefaultVisit(node);
 
@@ -1947,6 +1953,9 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public override SyntaxNode? VisitLoadDirectiveTrivia(LoadDirectiveTriviaSyntax node)
             => node.Update(VisitToken(node.HashToken), VisitToken(node.LoadKeyword), VisitToken(node.File), VisitToken(node.EndOfDirectiveToken), node.IsActive);
+
+        public override SyntaxNode? VisitGlobalsDirectiveTrivia(GlobalsDirectiveTriviaSyntax node)
+            => node.Update(VisitToken(node.HashToken), VisitToken(node.GlobalsKeyword), VisitToken(node.File), VisitToken(node.EndOfDirectiveToken), node.IsActive);
 
         public override SyntaxNode? VisitShebangDirectiveTrivia(ShebangDirectiveTriviaSyntax node)
             => node.Update(VisitToken(node.HashToken), VisitToken(node.ExclamationToken), VisitToken(node.EndOfDirectiveToken), node.IsActive);
@@ -5655,6 +5664,20 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <summary>Creates a new LoadDirectiveTriviaSyntax instance.</summary>
         public static LoadDirectiveTriviaSyntax LoadDirectiveTrivia(SyntaxToken file, bool isActive)
             => SyntaxFactory.LoadDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.LoadKeyword), file, SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), isActive);
+
+        /// <summary>Creates a new GlobalsDirectiveTriviaSyntax instance.</summary>
+        public static GlobalsDirectiveTriviaSyntax GlobalsDirectiveTrivia(SyntaxToken hashToken, SyntaxToken globalsKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+        {
+            if (hashToken.Kind() != SyntaxKind.HashToken) throw new ArgumentException(nameof(hashToken));
+            if (globalsKeyword.Kind() != SyntaxKind.GlobalsKeyword) throw new ArgumentException(nameof(globalsKeyword));
+            if (file.Kind() != SyntaxKind.StringLiteralToken) throw new ArgumentException(nameof(file));
+            if (endOfDirectiveToken.Kind() != SyntaxKind.EndOfDirectiveToken) throw new ArgumentException(nameof(endOfDirectiveToken));
+            return (GlobalsDirectiveTriviaSyntax)Syntax.InternalSyntax.SyntaxFactory.GlobalsDirectiveTrivia((Syntax.InternalSyntax.SyntaxToken)hashToken.Node!, (Syntax.InternalSyntax.SyntaxToken)globalsKeyword.Node!, (Syntax.InternalSyntax.SyntaxToken)file.Node!, (Syntax.InternalSyntax.SyntaxToken)endOfDirectiveToken.Node!, isActive).CreateRed();
+        }
+
+        /// <summary>Creates a new GlobalsDirectiveTriviaSyntax instance.</summary>
+        public static GlobalsDirectiveTriviaSyntax GlobalsDirectiveTrivia(SyntaxToken file, bool isActive)
+            => SyntaxFactory.GlobalsDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.GlobalsKeyword), file, SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), isActive);
 
         /// <summary>Creates a new ShebangDirectiveTriviaSyntax instance.</summary>
         public static ShebangDirectiveTriviaSyntax ShebangDirectiveTrivia(SyntaxToken hashToken, SyntaxToken exclamationToken, SyntaxToken endOfDirectiveToken, bool isActive)
