@@ -1735,6 +1735,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         #endregion diagnostics introduced for C# 8.0
 
+        #region diagnostics introduced for scripting after C# 8.0
+
+        ERR_PPGlobalsFollowsToken = 8751,
+        ERR_GlobalsDirectiveOnlyAllowedInScripts = 8752,
+
+        #endregion
+
         ERR_InternalError = 8751,
 
         // Note: you will need to re-generate compiler code after adding warnings (eng\generate-compiler-code.cmd)
