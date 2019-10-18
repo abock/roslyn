@@ -449,7 +449,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             SyntaxToken file = this.EatToken(SyntaxKind.StringLiteralToken, ErrorCode.ERR_ExpectedPPFile, reportError: isActive);
 
             var end = this.ParseEndOfDirective(ignoreErrors: file.IsMissing || !isActive);
-            return SyntaxFactory.ReferenceDirectiveTrivia(hash, keyword, file, end, isActive);
+            return SyntaxFactory.GlobalsDirectiveTrivia(hash, keyword, file, end, isActive);
         }
 
         private DirectiveTriviaSyntax ParseNullableDirective(SyntaxToken hash, SyntaxToken token, bool isActive)
