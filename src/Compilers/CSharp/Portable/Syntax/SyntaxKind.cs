@@ -238,6 +238,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         EndOfDocumentationCommentToken = 8495,
         EndOfFileToken = 8496, //NB: this is assumed to be the last textless token
 
+        // Second generation script directives
+        GlobalsKeyword = 8497,
+
         // tokens with text
         BadToken = 8507,
         IdentifierToken = 8508,

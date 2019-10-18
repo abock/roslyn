@@ -98,6 +98,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     result = this.ParseLoadDirective(hash, this.EatContextualToken(contextualKind), isActive, isAfterFirstTokenInFile && !isAfterNonWhitespaceOnLine);
                     break;
 
+                case SyntaxKind.GlobalsKeyword:
+                    result = this.ParseGlobalsDirective(hash, this.EatContextualToken(contextualKind), isActive, isAfterFirstTokenInFile && !isAfterNonWhitespaceOnLine);
+                    break;
+
                 case SyntaxKind.NullableKeyword:
                     result = this.ParseNullableDirective(hash, this.EatContextualToken(contextualKind), isActive);
                     break;
@@ -426,6 +430,26 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
             var end = this.ParseEndOfDirective(ignoreErrors: file.IsMissing || !isActive);
             return SyntaxFactory.LoadDirectiveTrivia(hash, keyword, file, end, isActive);
+        }
+
+        private DirectiveTriviaSyntax ParseGlobalsDirective(SyntaxToken hash, SyntaxToken keyword, bool isActive, bool isFollowingToken)
+        {
+            if (isActive)
+            {
+                if (Options.Kind == SourceCodeKind.Regular)
+                {
+                    keyword = this.AddError(keyword, ErrorCode.ERR_ReferenceDirectiveOnlyAllowedInScripts);
+                }
+                else if (isFollowingToken)
+                {
+                    keyword = this.AddError(keyword, ErrorCode.ERR_PPReferenceFollowsToken);
+                }
+            }
+
+            SyntaxToken file = this.EatToken(SyntaxKind.StringLiteralToken, ErrorCode.ERR_ExpectedPPFile, reportError: isActive);
+
+            var end = this.ParseEndOfDirective(ignoreErrors: file.IsMissing || !isActive);
+            return SyntaxFactory.ReferenceDirectiveTrivia(hash, keyword, file, end, isActive);
         }
 
         private DirectiveTriviaSyntax ParseNullableDirective(SyntaxToken hash, SyntaxToken token, bool isActive)

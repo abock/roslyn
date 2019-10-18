@@ -88,6 +88,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.RestoreKeyword:
                 case SyntaxKind.ReferenceKeyword:
                 case SyntaxKind.LoadKeyword:
+                case SyntaxKind.GlobalsKeyword:
                 case SyntaxKind.NullableKeyword:
                 case SyntaxKind.EnableKeyword:
                 case SyntaxKind.WarningsKeyword:
@@ -1046,6 +1047,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return SyntaxKind.ReferenceKeyword;
                 case "load":
                     return SyntaxKind.LoadKeyword;
+                case "globals":
+                    return SyntaxKind.GlobalsKeyword;
                 case "nullable":
                     return SyntaxKind.NullableKeyword;
                 case "enable":
@@ -1542,6 +1545,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return "r";
                 case SyntaxKind.LoadKeyword:
                     return "load";
+                case SyntaxKind.GlobalsKeyword:
+                    return "globals";
                 case SyntaxKind.NullableKeyword:
                     return "nullable";
                 case SyntaxKind.EnableKeyword:
