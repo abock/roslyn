@@ -87,6 +87,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.DisableKeyword:
                 case SyntaxKind.RestoreKeyword:
                 case SyntaxKind.ReferenceKeyword:
+                case SyntaxKind.GlobalKeyword:
                 case SyntaxKind.LoadKeyword:
                 case SyntaxKind.NullableKeyword:
                 case SyntaxKind.EnableKeyword:
@@ -121,6 +122,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.EnableKeyword:
                 case SyntaxKind.WarningsKeyword:
                 case SyntaxKind.AnnotationsKeyword:
+                case SyntaxKind.GlobalKeyword:
                     return false;
                 default:
                     return IsPreprocessorKeyword(kind);
@@ -1054,6 +1056,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return SyntaxKind.WarningsKeyword;
                 case "annotations":
                     return SyntaxKind.AnnotationsKeyword;
+                case "global":
+                    return SyntaxKind.GlobalKeyword;
                 default:
                     return SyntaxKind.None;
             }

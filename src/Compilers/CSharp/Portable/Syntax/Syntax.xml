@@ -4492,6 +4492,9 @@
     <Field Name="ReferenceKeyword" Type="SyntaxToken">
       <Kind Name="ReferenceKeyword"/>
     </Field>
+    <Field Name="GlobalKeyword" Type="SyntaxToken" Optional="true">
+      <Kind Name="GlobalKeyword"/>
+    </Field>
     <Field Name="File" Type="SyntaxToken">
       <Kind Name="StringLiteralToken"/>
     </Field>

@@ -402,10 +402,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 }
             }
 
+            SyntaxToken globalKeyword = this.CurrentToken.Kind == SyntaxKind.GlobalKeyword
+                ? this.EatToken()
+                : null;
+
             SyntaxToken file = this.EatToken(SyntaxKind.StringLiteralToken, ErrorCode.ERR_ExpectedPPFile, reportError: isActive);
 
             var end = this.ParseEndOfDirective(ignoreErrors: file.IsMissing || !isActive);
-            return SyntaxFactory.ReferenceDirectiveTrivia(hash, keyword, file, end, isActive);
+            return SyntaxFactory.ReferenceDirectiveTrivia(hash, keyword, globalKeyword, file, end, isActive);
         }
 
         private DirectiveTriviaSyntax ParseLoadDirective(SyntaxToken hash, SyntaxToken keyword, bool isActive, bool isFollowingToken)

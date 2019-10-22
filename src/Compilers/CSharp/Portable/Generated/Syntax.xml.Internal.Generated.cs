@@ -29683,18 +29683,24 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
     {
         internal readonly SyntaxToken hashToken;
         internal readonly SyntaxToken referenceKeyword;
+        internal readonly SyntaxToken? globalKeyword;
         internal readonly SyntaxToken file;
         internal readonly SyntaxToken endOfDirectiveToken;
         internal readonly bool isActive;
 
-        internal ReferenceDirectiveTriviaSyntax(SyntaxKind kind, SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive, DiagnosticInfo[] diagnostics, SyntaxAnnotation[] annotations)
+        internal ReferenceDirectiveTriviaSyntax(SyntaxKind kind, SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken? globalKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive, DiagnosticInfo[] diagnostics, SyntaxAnnotation[] annotations)
           : base(kind, diagnostics, annotations)
         {
-            this.SlotCount = 4;
+            this.SlotCount = 5;
             this.AdjustFlagsAndWidth(hashToken);
             this.hashToken = hashToken;
             this.AdjustFlagsAndWidth(referenceKeyword);
             this.referenceKeyword = referenceKeyword;
+            if (globalKeyword != null)
+            {
+                this.AdjustFlagsAndWidth(globalKeyword);
+                this.globalKeyword = globalKeyword;
+            }
             this.AdjustFlagsAndWidth(file);
             this.file = file;
             this.AdjustFlagsAndWidth(endOfDirectiveToken);
@@ -29702,15 +29708,20 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             this.isActive = isActive;
         }
 
-        internal ReferenceDirectiveTriviaSyntax(SyntaxKind kind, SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive, SyntaxFactoryContext context)
+        internal ReferenceDirectiveTriviaSyntax(SyntaxKind kind, SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken? globalKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive, SyntaxFactoryContext context)
           : base(kind)
         {
             this.SetFactoryContext(context);
-            this.SlotCount = 4;
+            this.SlotCount = 5;
             this.AdjustFlagsAndWidth(hashToken);
             this.hashToken = hashToken;
             this.AdjustFlagsAndWidth(referenceKeyword);
             this.referenceKeyword = referenceKeyword;
+            if (globalKeyword != null)
+            {
+                this.AdjustFlagsAndWidth(globalKeyword);
+                this.globalKeyword = globalKeyword;
+            }
             this.AdjustFlagsAndWidth(file);
             this.file = file;
             this.AdjustFlagsAndWidth(endOfDirectiveToken);
@@ -29718,14 +29729,19 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             this.isActive = isActive;
         }
 
-        internal ReferenceDirectiveTriviaSyntax(SyntaxKind kind, SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+        internal ReferenceDirectiveTriviaSyntax(SyntaxKind kind, SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken? globalKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
           : base(kind)
         {
-            this.SlotCount = 4;
+            this.SlotCount = 5;
             this.AdjustFlagsAndWidth(hashToken);
             this.hashToken = hashToken;
             this.AdjustFlagsAndWidth(referenceKeyword);
             this.referenceKeyword = referenceKeyword;
+            if (globalKeyword != null)
+            {
+                this.AdjustFlagsAndWidth(globalKeyword);
+                this.globalKeyword = globalKeyword;
+            }
             this.AdjustFlagsAndWidth(file);
             this.file = file;
             this.AdjustFlagsAndWidth(endOfDirectiveToken);
@@ -29735,6 +29751,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         public override SyntaxToken HashToken => this.hashToken;
         public SyntaxToken ReferenceKeyword => this.referenceKeyword;
+        public SyntaxToken? GlobalKeyword => this.globalKeyword;
         public SyntaxToken File => this.file;
         public override SyntaxToken EndOfDirectiveToken => this.endOfDirectiveToken;
         public override bool IsActive => this.isActive;
@@ -29744,8 +29761,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             {
                 0 => this.hashToken,
                 1 => this.referenceKeyword,
-                2 => this.file,
-                3 => this.endOfDirectiveToken,
+                2 => this.globalKeyword,
+                3 => this.file,
+                4 => this.endOfDirectiveToken,
                 _ => null,
             };
 
@@ -29754,11 +29772,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         public override void Accept(CSharpSyntaxVisitor visitor) => visitor.VisitReferenceDirectiveTrivia(this);
         public override TResult Accept<TResult>(CSharpSyntaxVisitor<TResult> visitor) => visitor.VisitReferenceDirectiveTrivia(this);
 
-        public ReferenceDirectiveTriviaSyntax Update(SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+        public ReferenceDirectiveTriviaSyntax Update(SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken globalKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
         {
-            if (hashToken != this.HashToken || referenceKeyword != this.ReferenceKeyword || file != this.File || endOfDirectiveToken != this.EndOfDirectiveToken)
+            if (hashToken != this.HashToken || referenceKeyword != this.ReferenceKeyword || globalKeyword != this.GlobalKeyword || file != this.File || endOfDirectiveToken != this.EndOfDirectiveToken)
             {
-                var newNode = SyntaxFactory.ReferenceDirectiveTrivia(hashToken, referenceKeyword, file, endOfDirectiveToken, isActive);
+                var newNode = SyntaxFactory.ReferenceDirectiveTrivia(hashToken, referenceKeyword, globalKeyword, file, endOfDirectiveToken, isActive);
                 var diags = GetDiagnostics();
                 if (diags?.Length > 0)
                     newNode = newNode.WithDiagnosticsGreen(diags);
@@ -29772,21 +29790,27 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         }
 
         internal override GreenNode SetDiagnostics(DiagnosticInfo[] diagnostics)
-            => new ReferenceDirectiveTriviaSyntax(this.Kind, this.hashToken, this.referenceKeyword, this.file, this.endOfDirectiveToken, this.isActive, diagnostics, GetAnnotations());
+            => new ReferenceDirectiveTriviaSyntax(this.Kind, this.hashToken, this.referenceKeyword, this.globalKeyword, this.file, this.endOfDirectiveToken, this.isActive, diagnostics, GetAnnotations());
 
         internal override GreenNode SetAnnotations(SyntaxAnnotation[] annotations)
-            => new ReferenceDirectiveTriviaSyntax(this.Kind, this.hashToken, this.referenceKeyword, this.file, this.endOfDirectiveToken, this.isActive, GetDiagnostics(), annotations);
+            => new ReferenceDirectiveTriviaSyntax(this.Kind, this.hashToken, this.referenceKeyword, this.globalKeyword, this.file, this.endOfDirectiveToken, this.isActive, GetDiagnostics(), annotations);
 
         internal ReferenceDirectiveTriviaSyntax(ObjectReader reader)
           : base(reader)
         {
-            this.SlotCount = 4;
+            this.SlotCount = 5;
             var hashToken = (SyntaxToken)reader.ReadValue();
             AdjustFlagsAndWidth(hashToken);
             this.hashToken = hashToken;
             var referenceKeyword = (SyntaxToken)reader.ReadValue();
             AdjustFlagsAndWidth(referenceKeyword);
             this.referenceKeyword = referenceKeyword;
+            var globalKeyword = (SyntaxToken?)reader.ReadValue();
+            if (globalKeyword != null)
+            {
+                AdjustFlagsAndWidth(globalKeyword);
+                this.globalKeyword = globalKeyword;
+            }
             var file = (SyntaxToken)reader.ReadValue();
             AdjustFlagsAndWidth(file);
             this.file = file;
@@ -29801,6 +29825,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             base.WriteTo(writer);
             writer.WriteValue(this.hashToken);
             writer.WriteValue(this.referenceKeyword);
+            writer.WriteValue(this.globalKeyword);
             writer.WriteValue(this.file);
             writer.WriteValue(this.endOfDirectiveToken);
             writer.WriteBoolean(this.isActive);
@@ -31297,7 +31322,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             => node.Update((SyntaxToken)Visit(node.HashToken), (SyntaxToken)Visit(node.PragmaKeyword), (SyntaxToken)Visit(node.ChecksumKeyword), (SyntaxToken)Visit(node.File), (SyntaxToken)Visit(node.Guid), (SyntaxToken)Visit(node.Bytes), (SyntaxToken)Visit(node.EndOfDirectiveToken), node.IsActive);
 
         public override CSharpSyntaxNode VisitReferenceDirectiveTrivia(ReferenceDirectiveTriviaSyntax node)
-            => node.Update((SyntaxToken)Visit(node.HashToken), (SyntaxToken)Visit(node.ReferenceKeyword), (SyntaxToken)Visit(node.File), (SyntaxToken)Visit(node.EndOfDirectiveToken), node.IsActive);
+            => node.Update((SyntaxToken)Visit(node.HashToken), (SyntaxToken)Visit(node.ReferenceKeyword), (SyntaxToken)Visit(node.GlobalKeyword), (SyntaxToken)Visit(node.File), (SyntaxToken)Visit(node.EndOfDirectiveToken), node.IsActive);
 
         public override CSharpSyntaxNode VisitLoadDirectiveTrivia(LoadDirectiveTriviaSyntax node)
             => node.Update((SyntaxToken)Visit(node.HashToken), (SyntaxToken)Visit(node.LoadKeyword), (SyntaxToken)Visit(node.File), (SyntaxToken)Visit(node.EndOfDirectiveToken), node.IsActive);
@@ -35799,20 +35824,29 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return new PragmaChecksumDirectiveTriviaSyntax(SyntaxKind.PragmaChecksumDirectiveTrivia, hashToken, pragmaKeyword, checksumKeyword, file, guid, bytes, endOfDirectiveToken, isActive, this.context);
         }
 
-        public ReferenceDirectiveTriviaSyntax ReferenceDirectiveTrivia(SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+        public ReferenceDirectiveTriviaSyntax ReferenceDirectiveTrivia(SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken? globalKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
         {
             #if DEBUG
             if (hashToken == null) throw new ArgumentNullException(nameof(hashToken));
             if (hashToken.Kind != SyntaxKind.HashToken) throw new ArgumentException(nameof(hashToken));
             if (referenceKeyword == null) throw new ArgumentNullException(nameof(referenceKeyword));
             if (referenceKeyword.Kind != SyntaxKind.ReferenceKeyword) throw new ArgumentException(nameof(referenceKeyword));
+            if (globalKeyword != null)
+            {
+                switch (globalKeyword.Kind)
+                {
+                    case SyntaxKind.GlobalKeyword:
+                    case SyntaxKind.None: break;
+                    default: throw new ArgumentException(nameof(globalKeyword));
+                }
+            }
             if (file == null) throw new ArgumentNullException(nameof(file));
             if (file.Kind != SyntaxKind.StringLiteralToken) throw new ArgumentException(nameof(file));
             if (endOfDirectiveToken == null) throw new ArgumentNullException(nameof(endOfDirectiveToken));
             if (endOfDirectiveToken.Kind != SyntaxKind.EndOfDirectiveToken) throw new ArgumentException(nameof(endOfDirectiveToken));
             #endif
 
-            return new ReferenceDirectiveTriviaSyntax(SyntaxKind.ReferenceDirectiveTrivia, hashToken, referenceKeyword, file, endOfDirectiveToken, isActive, this.context);
+            return new ReferenceDirectiveTriviaSyntax(SyntaxKind.ReferenceDirectiveTrivia, hashToken, referenceKeyword, globalKeyword, file, endOfDirectiveToken, isActive, this.context);
         }
 
         public LoadDirectiveTriviaSyntax LoadDirectiveTrivia(SyntaxToken hashToken, SyntaxToken loadKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
@@ -40363,20 +40397,29 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return new PragmaChecksumDirectiveTriviaSyntax(SyntaxKind.PragmaChecksumDirectiveTrivia, hashToken, pragmaKeyword, checksumKeyword, file, guid, bytes, endOfDirectiveToken, isActive);
         }
 
-        public static ReferenceDirectiveTriviaSyntax ReferenceDirectiveTrivia(SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+        public static ReferenceDirectiveTriviaSyntax ReferenceDirectiveTrivia(SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken? globalKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
         {
             #if DEBUG
             if (hashToken == null) throw new ArgumentNullException(nameof(hashToken));
             if (hashToken.Kind != SyntaxKind.HashToken) throw new ArgumentException(nameof(hashToken));
             if (referenceKeyword == null) throw new ArgumentNullException(nameof(referenceKeyword));
             if (referenceKeyword.Kind != SyntaxKind.ReferenceKeyword) throw new ArgumentException(nameof(referenceKeyword));
+            if (globalKeyword != null)
+            {
+                switch (globalKeyword.Kind)
+                {
+                    case SyntaxKind.GlobalKeyword:
+                    case SyntaxKind.None: break;
+                    default: throw new ArgumentException(nameof(globalKeyword));
+                }
+            }
             if (file == null) throw new ArgumentNullException(nameof(file));
             if (file.Kind != SyntaxKind.StringLiteralToken) throw new ArgumentException(nameof(file));
             if (endOfDirectiveToken == null) throw new ArgumentNullException(nameof(endOfDirectiveToken));
             if (endOfDirectiveToken.Kind != SyntaxKind.EndOfDirectiveToken) throw new ArgumentException(nameof(endOfDirectiveToken));
             #endif
 
-            return new ReferenceDirectiveTriviaSyntax(SyntaxKind.ReferenceDirectiveTrivia, hashToken, referenceKeyword, file, endOfDirectiveToken, isActive);
+            return new ReferenceDirectiveTriviaSyntax(SyntaxKind.ReferenceDirectiveTrivia, hashToken, referenceKeyword, globalKeyword, file, endOfDirectiveToken, isActive);
         }
 
         public static LoadDirectiveTriviaSyntax LoadDirectiveTrivia(SyntaxToken hashToken, SyntaxToken loadKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)

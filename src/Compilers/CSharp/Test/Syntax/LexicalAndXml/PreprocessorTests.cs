@@ -4152,6 +4152,40 @@ class A
                 SyntaxKind.ReferenceDirectiveTrivia, SyntaxKind.ReferenceDirectiveTrivia, SyntaxKind.ReferenceDirectiveTrivia, SyntaxKind.ReferenceDirectiveTrivia, SyntaxKind.ReferenceDirectiveTrivia);
         }
 
+        [Fact]
+        [Trait("Feature", "Directives")]
+        public void TestReferenceWithGlobalKeyword()
+        {
+            var text = @"
+#r ""a""
+#r global ""b""
+#r ""c""
+#r global ""d""
+#r ""e""
+";
+            var node = Parse(text, SourceCodeKind.Script);
+            TestRoundTripping(node, text);
+            VerifyDirectives(node,
+                SyntaxKind.ReferenceDirectiveTrivia,
+                SyntaxKind.ReferenceDirectiveTrivia,
+                SyntaxKind.ReferenceDirectiveTrivia,
+                SyntaxKind.ReferenceDirectiveTrivia,
+                SyntaxKind.ReferenceDirectiveTrivia);
+            Assert.Collection(
+                node.GetReferenceDirectives(),
+                d => _Assert(d, "a", SyntaxKind.None),
+                d => _Assert(d, "b", SyntaxKind.GlobalKeyword),
+                d => _Assert(d, "c", SyntaxKind.None),
+                d => _Assert(d, "d", SyntaxKind.GlobalKeyword),
+                d => _Assert(d, "e", SyntaxKind.None));
+
+            void _Assert(ReferenceDirectiveTriviaSyntax directive, string expectedFile, SyntaxKind expectedGlobalKeywordKind)
+            {
+                Assert.Equal(expectedFile, Assert.IsType<string>(directive.File.Value));
+                Assert.Equal(expectedGlobalKeywordKind, directive.GlobalKeyword.Kind());
+            }
+        }
+
         #endregion
 
         #region #load

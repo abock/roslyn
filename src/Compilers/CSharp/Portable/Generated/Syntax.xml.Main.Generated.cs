@@ -1943,7 +1943,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             => node.Update(VisitToken(node.HashToken), VisitToken(node.PragmaKeyword), VisitToken(node.ChecksumKeyword), VisitToken(node.File), VisitToken(node.Guid), VisitToken(node.Bytes), VisitToken(node.EndOfDirectiveToken), node.IsActive);
 
         public override SyntaxNode? VisitReferenceDirectiveTrivia(ReferenceDirectiveTriviaSyntax node)
-            => node.Update(VisitToken(node.HashToken), VisitToken(node.ReferenceKeyword), VisitToken(node.File), VisitToken(node.EndOfDirectiveToken), node.IsActive);
+            => node.Update(VisitToken(node.HashToken), VisitToken(node.ReferenceKeyword), VisitToken(node.GlobalKeyword), VisitToken(node.File), VisitToken(node.EndOfDirectiveToken), node.IsActive);
 
         public override SyntaxNode? VisitLoadDirectiveTrivia(LoadDirectiveTriviaSyntax node)
             => node.Update(VisitToken(node.HashToken), VisitToken(node.LoadKeyword), VisitToken(node.File), VisitToken(node.EndOfDirectiveToken), node.IsActive);
@@ -5629,18 +5629,24 @@ namespace Microsoft.CodeAnalysis.CSharp
             => SyntaxFactory.PragmaChecksumDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.PragmaKeyword), SyntaxFactory.Token(SyntaxKind.ChecksumKeyword), file, guid, bytes, SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), isActive);
 
         /// <summary>Creates a new ReferenceDirectiveTriviaSyntax instance.</summary>
-        public static ReferenceDirectiveTriviaSyntax ReferenceDirectiveTrivia(SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+        public static ReferenceDirectiveTriviaSyntax ReferenceDirectiveTrivia(SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken globalKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
         {
             if (hashToken.Kind() != SyntaxKind.HashToken) throw new ArgumentException(nameof(hashToken));
             if (referenceKeyword.Kind() != SyntaxKind.ReferenceKeyword) throw new ArgumentException(nameof(referenceKeyword));
+            switch (globalKeyword.Kind())
+            {
+                case SyntaxKind.GlobalKeyword:
+                case SyntaxKind.None: break;
+                default: throw new ArgumentException(nameof(globalKeyword));
+            }
             if (file.Kind() != SyntaxKind.StringLiteralToken) throw new ArgumentException(nameof(file));
             if (endOfDirectiveToken.Kind() != SyntaxKind.EndOfDirectiveToken) throw new ArgumentException(nameof(endOfDirectiveToken));
-            return (ReferenceDirectiveTriviaSyntax)Syntax.InternalSyntax.SyntaxFactory.ReferenceDirectiveTrivia((Syntax.InternalSyntax.SyntaxToken)hashToken.Node!, (Syntax.InternalSyntax.SyntaxToken)referenceKeyword.Node!, (Syntax.InternalSyntax.SyntaxToken)file.Node!, (Syntax.InternalSyntax.SyntaxToken)endOfDirectiveToken.Node!, isActive).CreateRed();
+            return (ReferenceDirectiveTriviaSyntax)Syntax.InternalSyntax.SyntaxFactory.ReferenceDirectiveTrivia((Syntax.InternalSyntax.SyntaxToken)hashToken.Node!, (Syntax.InternalSyntax.SyntaxToken)referenceKeyword.Node!, (Syntax.InternalSyntax.SyntaxToken?)globalKeyword.Node, (Syntax.InternalSyntax.SyntaxToken)file.Node!, (Syntax.InternalSyntax.SyntaxToken)endOfDirectiveToken.Node!, isActive).CreateRed();
         }
 
         /// <summary>Creates a new ReferenceDirectiveTriviaSyntax instance.</summary>
         public static ReferenceDirectiveTriviaSyntax ReferenceDirectiveTrivia(SyntaxToken file, bool isActive)
-            => SyntaxFactory.ReferenceDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.ReferenceKeyword), file, SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), isActive);
+            => SyntaxFactory.ReferenceDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.ReferenceKeyword), default, file, SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), isActive);
 
         /// <summary>Creates a new LoadDirectiveTriviaSyntax instance.</summary>
         public static LoadDirectiveTriviaSyntax LoadDirectiveTrivia(SyntaxToken hashToken, SyntaxToken loadKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)

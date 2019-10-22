@@ -644,7 +644,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             => InternalSyntaxFactory.PragmaChecksumDirectiveTrivia(InternalSyntaxFactory.Token(SyntaxKind.HashToken), InternalSyntaxFactory.Token(SyntaxKind.PragmaKeyword), InternalSyntaxFactory.Token(SyntaxKind.ChecksumKeyword), InternalSyntaxFactory.Literal(null, "string", "string", null), InternalSyntaxFactory.Literal(null, "string", "string", null), InternalSyntaxFactory.Literal(null, "string", "string", null), InternalSyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), new bool());
 
         private static Syntax.InternalSyntax.ReferenceDirectiveTriviaSyntax GenerateReferenceDirectiveTrivia()
-            => InternalSyntaxFactory.ReferenceDirectiveTrivia(InternalSyntaxFactory.Token(SyntaxKind.HashToken), InternalSyntaxFactory.Token(SyntaxKind.ReferenceKeyword), InternalSyntaxFactory.Literal(null, "string", "string", null), InternalSyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), new bool());
+            => InternalSyntaxFactory.ReferenceDirectiveTrivia(InternalSyntaxFactory.Token(SyntaxKind.HashToken), InternalSyntaxFactory.Token(SyntaxKind.ReferenceKeyword), null, InternalSyntaxFactory.Literal(null, "string", "string", null), InternalSyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), new bool());
 
         private static Syntax.InternalSyntax.LoadDirectiveTriviaSyntax GenerateLoadDirectiveTrivia()
             => InternalSyntaxFactory.LoadDirectiveTrivia(InternalSyntaxFactory.Token(SyntaxKind.HashToken), InternalSyntaxFactory.Token(SyntaxKind.LoadKeyword), InternalSyntaxFactory.Literal(null, "string", "string", null), InternalSyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), new bool());
@@ -3346,6 +3346,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
 
             Assert.Equal(SyntaxKind.HashToken, node.HashToken.Kind);
             Assert.Equal(SyntaxKind.ReferenceKeyword, node.ReferenceKeyword.Kind);
+            Assert.Null(node.GlobalKeyword);
             Assert.Equal(SyntaxKind.StringLiteralToken, node.File.Kind);
             Assert.Equal(SyntaxKind.EndOfDirectiveToken, node.EndOfDirectiveToken.Kind);
             Assert.Equal(new bool(), node.IsActive);
@@ -9626,7 +9627,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             => SyntaxFactory.PragmaChecksumDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.PragmaKeyword), SyntaxFactory.Token(SyntaxKind.ChecksumKeyword), SyntaxFactory.Literal("string", "string"), SyntaxFactory.Literal("string", "string"), SyntaxFactory.Literal("string", "string"), SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), new bool());
 
         private static ReferenceDirectiveTriviaSyntax GenerateReferenceDirectiveTrivia()
-            => SyntaxFactory.ReferenceDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.ReferenceKeyword), SyntaxFactory.Literal("string", "string"), SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), new bool());
+            => SyntaxFactory.ReferenceDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.ReferenceKeyword), default(SyntaxToken), SyntaxFactory.Literal("string", "string"), SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), new bool());
 
         private static LoadDirectiveTriviaSyntax GenerateLoadDirectiveTrivia()
             => SyntaxFactory.LoadDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.LoadKeyword), SyntaxFactory.Literal("string", "string"), SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), new bool());
@@ -12328,10 +12329,11 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
 
             Assert.Equal(SyntaxKind.HashToken, node.HashToken.Kind());
             Assert.Equal(SyntaxKind.ReferenceKeyword, node.ReferenceKeyword.Kind());
+            Assert.Equal(SyntaxKind.None, node.GlobalKeyword.Kind());
             Assert.Equal(SyntaxKind.StringLiteralToken, node.File.Kind());
             Assert.Equal(SyntaxKind.EndOfDirectiveToken, node.EndOfDirectiveToken.Kind());
             Assert.Equal(new bool(), node.IsActive);
-            var newNode = node.WithHashToken(node.HashToken).WithReferenceKeyword(node.ReferenceKeyword).WithFile(node.File).WithEndOfDirectiveToken(node.EndOfDirectiveToken).WithIsActive(node.IsActive);
+            var newNode = node.WithHashToken(node.HashToken).WithReferenceKeyword(node.ReferenceKeyword).WithGlobalKeyword(node.GlobalKeyword).WithFile(node.File).WithEndOfDirectiveToken(node.EndOfDirectiveToken).WithIsActive(node.IsActive);
             Assert.Equal(node, newNode);
         }
 

@@ -12382,9 +12382,18 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
         public SyntaxToken ReferenceKeyword => new SyntaxToken(this, ((Syntax.InternalSyntax.ReferenceDirectiveTriviaSyntax)this.Green).referenceKeyword, GetChildPosition(1), GetChildIndex(1));
 
-        public SyntaxToken File => new SyntaxToken(this, ((Syntax.InternalSyntax.ReferenceDirectiveTriviaSyntax)this.Green).file, GetChildPosition(2), GetChildIndex(2));
+        public SyntaxToken GlobalKeyword
+        {
+            get
+            {
+                var slot = ((Syntax.InternalSyntax.ReferenceDirectiveTriviaSyntax)this.Green).globalKeyword;
+                return slot != null ? new SyntaxToken(this, slot, GetChildPosition(2), GetChildIndex(2)) : default;
+            }
+        }
 
-        public override SyntaxToken EndOfDirectiveToken => new SyntaxToken(this, ((Syntax.InternalSyntax.ReferenceDirectiveTriviaSyntax)this.Green).endOfDirectiveToken, GetChildPosition(3), GetChildIndex(3));
+        public SyntaxToken File => new SyntaxToken(this, ((Syntax.InternalSyntax.ReferenceDirectiveTriviaSyntax)this.Green).file, GetChildPosition(3), GetChildIndex(3));
+
+        public override SyntaxToken EndOfDirectiveToken => new SyntaxToken(this, ((Syntax.InternalSyntax.ReferenceDirectiveTriviaSyntax)this.Green).endOfDirectiveToken, GetChildPosition(4), GetChildIndex(4));
 
         public override bool IsActive => ((Syntax.InternalSyntax.ReferenceDirectiveTriviaSyntax)this.Green).IsActive;
 
@@ -12395,11 +12404,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
         public override void Accept(CSharpSyntaxVisitor visitor) => visitor.VisitReferenceDirectiveTrivia(this);
         public override TResult Accept<TResult>(CSharpSyntaxVisitor<TResult> visitor) => visitor.VisitReferenceDirectiveTrivia(this);
 
-        public ReferenceDirectiveTriviaSyntax Update(SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
+        public ReferenceDirectiveTriviaSyntax Update(SyntaxToken hashToken, SyntaxToken referenceKeyword, SyntaxToken globalKeyword, SyntaxToken file, SyntaxToken endOfDirectiveToken, bool isActive)
         {
-            if (hashToken != this.HashToken || referenceKeyword != this.ReferenceKeyword || file != this.File || endOfDirectiveToken != this.EndOfDirectiveToken)
+            if (hashToken != this.HashToken || referenceKeyword != this.ReferenceKeyword || globalKeyword != this.GlobalKeyword || file != this.File || endOfDirectiveToken != this.EndOfDirectiveToken)
             {
-                var newNode = SyntaxFactory.ReferenceDirectiveTrivia(hashToken, referenceKeyword, file, endOfDirectiveToken, isActive);
+                var newNode = SyntaxFactory.ReferenceDirectiveTrivia(hashToken, referenceKeyword, globalKeyword, file, endOfDirectiveToken, isActive);
                 var annotations = GetAnnotations();
                 return annotations?.Length > 0 ? newNode.WithAnnotations(annotations) : newNode;
             }
@@ -12408,12 +12417,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
         }
 
         internal override DirectiveTriviaSyntax WithHashTokenCore(SyntaxToken hashToken) => WithHashToken(hashToken);
-        public new ReferenceDirectiveTriviaSyntax WithHashToken(SyntaxToken hashToken) => Update(hashToken, this.ReferenceKeyword, this.File, this.EndOfDirectiveToken, this.IsActive);
-        public ReferenceDirectiveTriviaSyntax WithReferenceKeyword(SyntaxToken referenceKeyword) => Update(this.HashToken, referenceKeyword, this.File, this.EndOfDirectiveToken, this.IsActive);
-        public ReferenceDirectiveTriviaSyntax WithFile(SyntaxToken file) => Update(this.HashToken, this.ReferenceKeyword, file, this.EndOfDirectiveToken, this.IsActive);
+        public new ReferenceDirectiveTriviaSyntax WithHashToken(SyntaxToken hashToken) => Update(hashToken, this.ReferenceKeyword, this.GlobalKeyword, this.File, this.EndOfDirectiveToken, this.IsActive);
+        public ReferenceDirectiveTriviaSyntax WithReferenceKeyword(SyntaxToken referenceKeyword) => Update(this.HashToken, referenceKeyword, this.GlobalKeyword, this.File, this.EndOfDirectiveToken, this.IsActive);
+        public ReferenceDirectiveTriviaSyntax WithGlobalKeyword(SyntaxToken globalKeyword) => Update(this.HashToken, this.ReferenceKeyword, globalKeyword, this.File, this.EndOfDirectiveToken, this.IsActive);
+        public ReferenceDirectiveTriviaSyntax WithFile(SyntaxToken file) => Update(this.HashToken, this.ReferenceKeyword, this.GlobalKeyword, file, this.EndOfDirectiveToken, this.IsActive);
         internal override DirectiveTriviaSyntax WithEndOfDirectiveTokenCore(SyntaxToken endOfDirectiveToken) => WithEndOfDirectiveToken(endOfDirectiveToken);
-        public new ReferenceDirectiveTriviaSyntax WithEndOfDirectiveToken(SyntaxToken endOfDirectiveToken) => Update(this.HashToken, this.ReferenceKeyword, this.File, endOfDirectiveToken, this.IsActive);
-        public ReferenceDirectiveTriviaSyntax WithIsActive(bool isActive) => Update(this.HashToken, this.ReferenceKeyword, this.File, this.EndOfDirectiveToken, isActive);
+        public new ReferenceDirectiveTriviaSyntax WithEndOfDirectiveToken(SyntaxToken endOfDirectiveToken) => Update(this.HashToken, this.ReferenceKeyword, this.GlobalKeyword, this.File, endOfDirectiveToken, this.IsActive);
+        public ReferenceDirectiveTriviaSyntax WithIsActive(bool isActive) => Update(this.HashToken, this.ReferenceKeyword, this.GlobalKeyword, this.File, this.EndOfDirectiveToken, isActive);
     }
 
     public sealed partial class LoadDirectiveTriviaSyntax : DirectiveTriviaSyntax

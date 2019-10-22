@@ -1162,7 +1162,7 @@ pragma_warning_directive_trivia
   ;
 
 reference_directive_trivia
-  : '#' 'r' string_literal_token
+  : '#' 'r' 'global'? string_literal_token
   ;
 
 region_directive_trivia
