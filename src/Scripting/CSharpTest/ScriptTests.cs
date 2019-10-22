@@ -948,6 +948,21 @@ i", options);
             );
         }
 
+        [Fact]
+        public void CreateScriptWithGlobalsReference()
+        {
+            var globalsReference = "reference-wtih-script-globals";
+            var script = CSharpScript.Create(@$"#r global ""{globalsReference}""");
+            var compilation = script.GetCompilation();
+            Assert.Collection(
+                compilation.ReferenceDirectives,
+                r =>
+                {
+                    Assert.Equal(globalsReference, r.File);
+                    Assert.True(r.ScanForScriptGlobals);
+                });
+        }
+
         private class StreamOffsetResolver : SourceReferenceResolver
         {
             public override bool Equals(object other) => ReferenceEquals(this, other);

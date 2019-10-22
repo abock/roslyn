@@ -12,14 +12,16 @@ namespace Microsoft.CodeAnalysis
     {
         public readonly string File;
         public readonly Location Location;
+        public readonly bool ScanForScriptGlobals;
 
-        public ReferenceDirective(string file, Location location)
+        public ReferenceDirective(string file, Location location, bool scanForScriptGlobals)
         {
             Debug.Assert(file != null);
             Debug.Assert(location != null);
 
             File = file;
             Location = location;
+            ScanForScriptGlobals = scanForScriptGlobals;
         }
     }
 }

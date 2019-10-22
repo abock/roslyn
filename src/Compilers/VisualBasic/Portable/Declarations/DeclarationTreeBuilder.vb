@@ -99,7 +99,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
 
             Dim directives = ArrayBuilder(Of ReferenceDirective).GetInstance(directiveNodes.Count)
             For Each directiveNode In directiveNodes
-                directives.Add(New ReferenceDirective(directiveNode.File.ValueText, New SourceLocation(directiveNode)))
+                directives.Add(New ReferenceDirective(directiveNode.File.ValueText, New SourceLocation(directiveNode), False))
             Next
             Return directives.ToImmutableAndFree()
         End Function

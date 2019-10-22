@@ -154,7 +154,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             var directives = ArrayBuilder<ReferenceDirective>.GetInstance(directiveNodes.Count);
             foreach (var directiveNode in directiveNodes)
             {
-                directives.Add(new ReferenceDirective(directiveNode.File.ValueText, new SourceLocation(directiveNode)));
+                directives.Add(new ReferenceDirective(
+                    directiveNode.File.ValueText,
+                    new SourceLocation(directiveNode),
+                    directiveNode.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword)));
             }
             return directives.ToImmutableAndFree();
         }
