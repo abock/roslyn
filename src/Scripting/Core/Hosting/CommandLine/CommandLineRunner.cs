@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis.Text;
@@ -182,15 +183,23 @@ namespace Microsoft.CodeAnalysis.Scripting.Hosting
             return new CommonCompiler.LoggingSourceFileResolver(arguments.SourcePaths, arguments.BaseDirectory, ImmutableArray<KeyValuePair<string, string>>.Empty, loggerOpt);
         }
 
+        private object GetScriptGlobalsFromReferenceDirective()
+        {
+            // TODO: this comes next
+            return null;
+        }
+
         private int RunScript(ScriptOptions options, SourceText code, ErrorLogger errorLogger, CancellationToken cancellationToken)
         {
-            var globals = new CommandLineScriptGlobals(_console.Out, _objectFormatter);
-            globals.Args.AddRange(_compiler.Arguments.ScriptArguments);
+            var globalsProxy = new ScriptGlobalsProxy(
+                GetScriptGlobalsFromReferenceDirective()
+                    ?? new CommandLineScriptGlobals(_console.Out, _objectFormatter));
+            globalsProxy.Args?.AddRange(_compiler.Arguments.ScriptArguments);
 
-            var script = Script.CreateInitialScript<int>(_scriptCompiler, code, options, globals.GetType(), assemblyLoaderOpt: null);
+            var script = Script.CreateInitialScript<int>(_scriptCompiler, code, options, globalsProxy.Globals?.GetType(), assemblyLoaderOpt: null);
             try
             {
-                return script.RunAsync(globals, cancellationToken).GetAwaiter().GetResult().ReturnValue;
+                return script.RunAsync(globalsProxy.Globals, cancellationToken).GetAwaiter().GetResult().ReturnValue;
             }
             catch (CompilationErrorException e)
             {
@@ -206,15 +215,17 @@ namespace Microsoft.CodeAnalysis.Scripting.Hosting
 
         private void RunInteractiveLoop(ScriptOptions options, string initialScriptCodeOpt, CancellationToken cancellationToken)
         {
-            var globals = new InteractiveScriptGlobals(_console.Out, _objectFormatter);
-            globals.Args.AddRange(_compiler.Arguments.ScriptArguments);
+            var globalsProxy = new InteractiveScriptGlobalsProxy(
+                GetScriptGlobalsFromReferenceDirective()
+                    ?? new InteractiveScriptGlobals(_console.Out, _objectFormatter));
+            globalsProxy.Args?.AddRange(_compiler.Arguments.ScriptArguments);
 
             ScriptState<object> state = null;
 
             if (initialScriptCodeOpt != null)
             {
-                var script = Script.CreateInitialScript<object>(_scriptCompiler, SourceText.From(initialScriptCodeOpt), options, globals.GetType(), assemblyLoaderOpt: null);
-                BuildAndRun(script, globals, ref state, ref options, displayResult: false, cancellationToken: cancellationToken);
+                var script = Script.CreateInitialScript<object>(_scriptCompiler, SourceText.From(initialScriptCodeOpt), options, globalsProxy.Globals?.GetType(), assemblyLoaderOpt: null);
+                BuildAndRun(script, globalsProxy, ref state, ref options, displayResult: false, cancellationToken: cancellationToken);
             }
 
             while (true)
@@ -265,18 +276,18 @@ namespace Microsoft.CodeAnalysis.Scripting.Hosting
                 Script<object> newScript;
                 if (state == null)
                 {
-                    newScript = Script.CreateInitialScript<object>(_scriptCompiler, SourceText.From(code ?? string.Empty), options, globals.GetType(), assemblyLoaderOpt: null);
+                    newScript = Script.CreateInitialScript<object>(_scriptCompiler, SourceText.From(code ?? string.Empty), options, globalsProxy.Globals?.GetType(), assemblyLoaderOpt: null);
                 }
                 else
                 {
                     newScript = state.Script.ContinueWith(code, options);
                 }
 
-                BuildAndRun(newScript, globals, ref state, ref options, displayResult: true, cancellationToken: cancellationToken);
+                BuildAndRun(newScript, globalsProxy, ref state, ref options, displayResult: true, cancellationToken: cancellationToken);
             }
         }
 
-        private void BuildAndRun(Script<object> newScript, InteractiveScriptGlobals globals, ref ScriptState<object> state, ref ScriptOptions options, bool displayResult, CancellationToken cancellationToken)
+        private void BuildAndRun(Script<object> newScript, InteractiveScriptGlobalsProxy globalsProxy, ref ScriptState<object> state, ref ScriptOptions options, bool displayResult, CancellationToken cancellationToken)
         {
             var diagnostics = newScript.Compile(cancellationToken);
             DisplayDiagnostics(diagnostics);
@@ -286,7 +297,7 @@ namespace Microsoft.CodeAnalysis.Scripting.Hosting
             }
 
             var task = (state == null) ?
-                newScript.RunAsync(globals, catchException: e => true, cancellationToken: cancellationToken) :
+                newScript.RunAsync(globalsProxy.Globals, catchException: e => true, cancellationToken: cancellationToken) :
                 newScript.RunFromAsync(state, catchException: e => true, cancellationToken: cancellationToken);
 
             state = task.GetAwaiter().GetResult();
@@ -296,20 +307,22 @@ namespace Microsoft.CodeAnalysis.Scripting.Hosting
             }
             else if (displayResult && newScript.HasReturnValue())
             {
-                globals.Print(state.ReturnValue);
+                globalsProxy.Print(state.ReturnValue);
             }
 
-            options = UpdateOptions(options, globals);
+            options = UpdateOptions(options, globalsProxy);
         }
 
-        private static ScriptOptions UpdateOptions(ScriptOptions options, InteractiveScriptGlobals globals)
+        private static ScriptOptions UpdateOptions(ScriptOptions options, InteractiveScriptGlobalsProxy globalsProxy)
         {
             var currentMetadataResolver = (RuntimeMetadataReferenceResolver)options.MetadataResolver;
             var currentSourceResolver = (CommonCompiler.LoggingSourceFileResolver)options.SourceResolver;
 
             string newWorkingDirectory = Directory.GetCurrentDirectory();
-            var newReferenceSearchPaths = ImmutableArray.CreateRange(globals.ReferencePaths);
-            var newSourceSearchPaths = ImmutableArray.CreateRange(globals.SourcePaths);
+            var newReferenceSearchPaths = ImmutableArray.CreateRange(
+                globalsProxy.ReferencePaths ?? ImmutableArray<string>.Empty);
+            var newSourceSearchPaths = ImmutableArray.CreateRange(
+                globalsProxy.SourcePaths ?? ImmutableArray<string>.Empty);
 
             // remove references and imports from the options, they have been applied and will be inherited from now on:
             return options.
@@ -387,6 +400,86 @@ namespace Microsoft.CodeAnalysis.Scripting.Hosting
             finally
             {
                 _console.ResetColor();
+            }
+        }
+
+        private class ScriptGlobalsProxy
+        {
+            public object Globals { get; }
+
+            private Func<IList<string>> _argsGetter;
+            public IList<string> Args => _argsGetter();
+
+            private readonly Action<object> _printMethod;
+            public void Print(object value) => _printMethod(value);
+
+            public ScriptGlobalsProxy(object globals)
+            {
+                Globals = globals;
+
+                if (globals is InteractiveScriptGlobals interactiveScriptGlobals)
+                {
+                    _argsGetter = () => interactiveScriptGlobals.Args;
+                    _printMethod = interactiveScriptGlobals.Print;
+                }
+                else if (globals is object)
+                {
+                    _argsGetter = ProxyProperty<IList<string>>(nameof(Args));
+                    _printMethod = ProxyMethod<Action<object>>(nameof(Print));
+                }
+
+                _argsGetter ??= () => null;
+                _printMethod ??= v => { };
+            }
+
+            protected Func<T> ProxyProperty<T>(string name)
+                => Globals
+                    ?.GetType()
+                    ?.GetProperty(
+                        name: name,
+                        bindingAttr: BindingFlags.Public | BindingFlags.Instance,
+                        binder: null,
+                        returnType: typeof(T),
+                        types: Array.Empty<Type>(),
+                        modifiers: null)
+                    ?.GetMethod
+                    ?.CreateDelegate(typeof(Func<T>), Globals) as Func<T>;
+
+            protected TDelegate ProxyMethod<TDelegate>(string name) where TDelegate : Delegate
+                => Globals
+                    ?.GetType()
+                    ?.GetMethod(
+                        name: name,
+                        bindingAttr: BindingFlags.Public | BindingFlags.Instance,
+                        binder: null,
+                        types: typeof(TDelegate).GetGenericArguments(),
+                        modifiers: null)
+                    ?.CreateDelegate(typeof(TDelegate), Globals) as TDelegate;
+        }
+
+        private class InteractiveScriptGlobalsProxy : ScriptGlobalsProxy
+        {
+            private Func<IList<string>> _referencePathsGetter;
+            public IList<string> ReferencePaths => _referencePathsGetter();
+
+            private readonly Func<IList<string>> _sourcePathsGetter;
+            public IList<string> SourcePaths => _sourcePathsGetter();
+
+            public InteractiveScriptGlobalsProxy(object globals) : base(globals)
+            {
+                if (globals is InteractiveScriptGlobals interactiveScriptGlobals)
+                {
+                    _referencePathsGetter = () => interactiveScriptGlobals.ReferencePaths;
+                    _sourcePathsGetter = () => interactiveScriptGlobals.SourcePaths;
+                }
+                else if (globals is object)
+                {
+                    _referencePathsGetter = ProxyProperty<IList<string>>(nameof(ReferencePaths));
+                    _sourcePathsGetter = ProxyProperty<IList<string>>(nameof(SourcePaths));
+                }
+
+                _referencePathsGetter ??= () => null;
+                _sourcePathsGetter ??= () => null;
             }
         }
     }
