@@ -1660,8 +1660,8 @@ class A
         {
             // MinAsyncCorlibRef corlib is used since it provides just enough corlib type definitions
             // and Task APIs necessary for script hosting are provided by MinAsyncRef. This ensures that
-            // `System.Object, mscorlib, Version=4.0.0.0` will not be provided (since it's unversioned).
             //
+            // `System.Object, mscorlib, Version=4.0.0.0` will not be provided (since it's unversioned).
             // In the original bug, Xamarin iOS, Android, and Mac Mobile profile corlibs were
             // realistic cross-compilation targets.
 
@@ -1699,8 +1699,28 @@ class A
 
             Assert.Null(new CSharpScriptCompilationInfo(null, null, null)
                 .WithPreviousScriptCompilation(firstCompilation)
-                .ReturnTypeOpt);
+                .UnresolvedScriptReturnType);
         }
+
+        public class TestGlobals
+        {
+            public void Hello()
+            {
+            }
+        }
+
+        [WorkItem(8506, "https://github.com/dotnet/roslyn/issues/8506")]
+        [WorkItem(17403, "https://github.com/dotnet/roslyn/issues/17403")]
+        [Fact]
+        public void GlobalsTypeByName_Script()
+        {
+            var compilation = CSharpCompilation.CreateScriptCompilationWithoutReflection(
+                "submission_0",
+                Parse("Hello();", options: TestOptions.Script),
+                globalsTypeName: typeof(TestGlobals).FullName);
+            compilation.VerifyDiagnostics();
+        }
+
 
         [WorkItem(3719, "https://github.com/dotnet/roslyn/issues/3719")]
         [Fact]

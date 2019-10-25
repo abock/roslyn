@@ -149,9 +149,9 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
             ByRef resultType As TypeSymbol,
             ByRef returnType As TypeSymbol)
 
-            Dim submissionReturnType As Type = Nothing
+            Dim submissionReturnType As UnresolvedScriptType = Nothing
             If compilation.ScriptCompilationInfo IsNot Nothing Then
-                submissionReturnType = compilation.ScriptCompilationInfo.ReturnTypeOpt
+                submissionReturnType = compilation.ScriptCompilationInfo.UnresolvedScriptReturnType
             End If
 
             Dim taskT = compilation.GetWellKnownType(WellKnownType.System_Threading_Tasks_Task_T)
@@ -159,6 +159,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
             If useSiteDiagnostic IsNot Nothing Then
                 diagnostics.Add(useSiteDiagnostic, NoLocation.Singleton)
             End If
+
             ' If no explicit return type is set on ScriptCompilationInfo, default to
             ' System.Object from the target corlib. This allows cross compiling scripts
             ' to run on a target corlib that may differ from the host compiler's corlib.
@@ -166,8 +167,13 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
             If submissionReturnType Is Nothing Then
                 resultType = compilation.GetSpecialType(SpecialType.System_Object)
             Else
-                resultType = compilation.GetTypeByReflectionType(submissionReturnType, diagnostics)
+                resultType = DirectCast(compilation.ResolveScriptType(submissionReturnType), TypeSymbol)
+                Dim errorResultType As ErrorTypeSymbol = TryCast(resultType, ErrorTypeSymbol)
+                If errorResultType IsNot Nothing Then
+                    diagnostics.Add(errorResultType.ErrorInfo, NoLocation.Singleton)
+                End If
             End If
+
             returnType = taskT.Construct(resultType)
         End Sub
 

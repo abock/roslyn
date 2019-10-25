@@ -241,20 +241,31 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             out TypeSymbol returnType)
         {
             CSharpCompilation compilation = containingType.DeclaringCompilation;
-            var submissionReturnTypeOpt = compilation.ScriptCompilationInfo?.ReturnTypeOpt;
             var taskT = compilation.GetWellKnownType(WellKnownType.System_Threading_Tasks_Task_T);
             var useSiteDiagnostic = taskT.GetUseSiteDiagnostic();
             if (useSiteDiagnostic != null)
             {
                 diagnostics.Add(useSiteDiagnostic, NoLocation.Singleton);
             }
+
             // If no explicit return type is set on ScriptCompilationInfo, default to
             // System.Object from the target corlib. This allows cross compiling scripts
             // to run on a target corlib that may differ from the host compiler's corlib.
             // cf. https://github.com/dotnet/roslyn/issues/8506
-            resultType = (object)submissionReturnTypeOpt == null
-                ? compilation.GetSpecialType(SpecialType.System_Object)
-                : compilation.GetTypeByReflectionType(submissionReturnTypeOpt, diagnostics);
+            if (compilation.ScriptCompilationInfo.UnresolvedScriptReturnType is UnresolvedScriptType submissionReturnType)
+            {
+                resultType = (TypeSymbol)compilation.ResolveScriptType(submissionReturnType);
+
+                if (resultType is ErrorTypeSymbol errorTypeSymbol)
+                {
+                    diagnostics.Add(errorTypeSymbol.ErrorInfo, NoLocation.Singleton);
+                }
+            }
+            else
+            {
+                resultType = compilation.GetSpecialType(SpecialType.System_Object);
+            }
+
             returnType = taskT.Construct(resultType);
         }
     }

@@ -6,14 +6,18 @@ namespace Microsoft.CodeAnalysis
 {
     public abstract class ScriptCompilationInfo
     {
-        internal Type ReturnTypeOpt { get; }
-        public Type ReturnType => ReturnTypeOpt ?? typeof(object);
-        public Type GlobalsType { get; }
+        internal UnresolvedScriptType UnresolvedScriptReturnType { get; }
+        internal UnresolvedScriptType UnresolvedScriptGlobalsType { get; }
 
-        internal ScriptCompilationInfo(Type returnType, Type globalsType)
+        public Type ReturnType => UnresolvedScriptReturnType?.ReflectionType ?? typeof(object);
+        public Type GlobalsType => UnresolvedScriptGlobalsType?.ReflectionType;
+
+        internal ScriptCompilationInfo(
+            UnresolvedScriptType unresolvedScriptReturnType,
+            UnresolvedScriptType unresolvedScriptGlobalsType)
         {
-            ReturnTypeOpt = returnType;
-            GlobalsType = globalsType;
+            UnresolvedScriptReturnType = unresolvedScriptReturnType;
+            UnresolvedScriptGlobalsType = unresolvedScriptGlobalsType;
         }
 
         public Compilation PreviousScriptCompilation => CommonPreviousScriptCompilation;

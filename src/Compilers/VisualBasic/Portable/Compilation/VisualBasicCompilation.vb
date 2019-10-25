@@ -338,8 +338,11 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
             Optional returnType As Type = Nothing,
             Optional globalsType As Type = Nothing) As VisualBasicCompilation
 
+            Dim unboundReturnType = UnresolvedScriptType.Create(returnType)
+            Dim unboundGlobalsType = UnresolvedScriptType.Create(globalsType)
+
             CheckSubmissionOptions(options)
-            ValidateScriptCompilationParameters(previousScriptCompilation, returnType, globalsType)
+            ValidateScriptCompilationParameters(previousScriptCompilation, unboundReturnType, unboundGlobalsType)
 
             Return Create(
                 assemblyName,
@@ -347,8 +350,37 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                 If((syntaxTree IsNot Nothing), {syntaxTree}, SpecializedCollections.EmptyEnumerable(Of SyntaxTree)()),
                 references,
                 previousScriptCompilation,
-                returnType,
-                globalsType,
+                unboundReturnType,
+                unboundGlobalsType,
+                isSubmission:=True)
+        End Function
+
+        ''' <summary> 
+        ''' Creates a new compilation that can be used in scripting. 
+        ''' </summary>
+        Friend Shared Function CreateScriptCompilationWithoutReflection(
+            assemblyName As String,
+            Optional syntaxTree As SyntaxTree = Nothing,
+            Optional references As IEnumerable(Of MetadataReference) = Nothing,
+            Optional options As VisualBasicCompilationOptions = Nothing,
+            Optional previousScriptCompilation As VisualBasicCompilation = Nothing,
+            Optional returnTypeName As Type = Nothing,
+            Optional globalsTypeName As Type = Nothing) As VisualBasicCompilation
+
+            Dim unboundReturnType = UnresolvedScriptType.Create(returnTypeName)
+            Dim unboundGlobalsType = UnresolvedScriptType.Create(globalsTypeName)
+
+            CheckSubmissionOptions(options)
+            ' ValidateScriptCompilationParameters(previousScriptCompilation, returnType, globalsType)
+
+            Return Create(
+                assemblyName,
+                If(options, New VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary)).WithReferencesSupersedeLowerVersions(True),
+                If((syntaxTree IsNot Nothing), {syntaxTree}, SpecializedCollections.EmptyEnumerable(Of SyntaxTree)()),
+                references,
+                previousScriptCompilation,
+                unboundReturnType,
+                unboundGlobalsType,
                 isSubmission:=True)
         End Function
 
@@ -358,8 +390,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
             syntaxTrees As IEnumerable(Of SyntaxTree),
             references As IEnumerable(Of MetadataReference),
             previousSubmission As VisualBasicCompilation,
-            returnType As Type,
-            hostObjectType As Type,
+            returnType As UnresolvedScriptType,
+            hostObjectType As UnresolvedScriptType,
             isSubmission As Boolean
         ) As VisualBasicCompilation
             Debug.Assert(Not isSubmission OrElse options.ReferencesSupersedeLowerVersions)
@@ -410,8 +442,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
             embeddedTrees As ImmutableArray(Of EmbeddedTreeAndDeclaration),
             declarationTable As DeclarationTable,
             previousSubmission As VisualBasicCompilation,
-            submissionReturnType As Type,
-            hostObjectType As Type,
+            submissionReturnType As UnresolvedScriptType,
+            hostObjectType As UnresolvedScriptType,
             isSubmission As Boolean,
             referenceManager As ReferenceManager,
             reuseReferenceManager As Boolean,
@@ -671,8 +703,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                 _embeddedTrees,
                 _declarationTable,
                 info?.PreviousScriptCompilation,
-                info?.ReturnTypeOpt,
-                info?.GlobalsType,
+                info?.UnresolvedScriptReturnType,
+                info?.UnresolvedScriptGlobalsType,
                 info IsNot Nothing,
                 _referenceManager,
                 reuseReferenceManager:=True)
@@ -768,6 +800,11 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                 ScriptClass.GetScriptInitializer(),
                 Nothing)
         End Function
+
+        Friend Overrides Function ResolveScriptType(unresolvedScriptType As UnresolvedScriptType) As ITypeSymbol
+            Throw New NotImplementedException()
+        End Function
+
 
 #End Region
 

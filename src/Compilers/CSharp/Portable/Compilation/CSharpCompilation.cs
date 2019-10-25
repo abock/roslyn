@@ -294,8 +294,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             Type returnType = null,
             Type globalsType = null)
         {
+            var unboundReturnType = UnresolvedScriptType.Create(returnType);
+            var unboundGlobalsType = UnresolvedScriptType.Create(globalsType);
+
             CheckSubmissionOptions(options);
-            ValidateScriptCompilationParameters(previousScriptCompilation, returnType, ref globalsType);
+            ValidateScriptCompilationParameters(previousScriptCompilation, unboundReturnType, ref unboundGlobalsType);
 
             return Create(
                 assemblyName,
@@ -303,8 +306,37 @@ namespace Microsoft.CodeAnalysis.CSharp
                 (syntaxTree != null) ? new[] { syntaxTree } : SpecializedCollections.EmptyEnumerable<SyntaxTree>(),
                 references,
                 previousScriptCompilation,
-                returnType,
-                globalsType,
+                unboundReturnType,
+                unboundGlobalsType,
+                isSubmission: true);
+        }
+
+        /// <summary>
+        /// Creates a new compilation that can be used in scripting.
+        /// </summary>
+        public static CSharpCompilation CreateScriptCompilationWithoutReflection(
+            string assemblyName,
+            SyntaxTree syntaxTree = null,
+            IEnumerable<MetadataReference> references = null,
+            CSharpCompilationOptions options = null,
+            CSharpCompilation previousScriptCompilation = null,
+            string returnTypeName = null,
+            string globalsTypeName = null)
+        {
+            var unboundReturnType = UnresolvedScriptType.Create(returnTypeName);
+            var unboundGlobalsType = UnresolvedScriptType.Create(globalsTypeName);
+
+            CheckSubmissionOptions(options);
+            // ValidateScriptCompilationParameters(previousScriptCompilation, unboundReturnType, ref unboundGlobalsType);
+
+            return Create(
+                assemblyName,
+                options?.WithReferencesSupersedeLowerVersions(true) ?? s_defaultSubmissionOptions,
+                (syntaxTree != null) ? new[] { syntaxTree } : SpecializedCollections.EmptyEnumerable<SyntaxTree>(),
+                references,
+                previousScriptCompilation,
+                unboundReturnType,
+                unboundGlobalsType,
                 isSubmission: true);
         }
 
@@ -314,8 +346,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             IEnumerable<SyntaxTree> syntaxTrees,
             IEnumerable<MetadataReference> references,
             CSharpCompilation previousSubmission,
-            Type returnType,
-            Type hostObjectType,
+            UnresolvedScriptType returnType,
+            UnresolvedScriptType hostObjectType,
             bool isSubmission)
         {
             Debug.Assert(options != null);
@@ -363,8 +395,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             CSharpCompilationOptions options,
             ImmutableArray<MetadataReference> references,
             CSharpCompilation previousSubmission,
-            Type submissionReturnType,
-            Type hostObjectType,
+            UnresolvedScriptType submissionReturnType,
+            UnresolvedScriptType hostObjectType,
             bool isSubmission,
             ReferenceManager referenceManager,
             bool reuseReferenceManager,
@@ -379,8 +411,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             CSharpCompilationOptions options,
             ImmutableArray<MetadataReference> references,
             CSharpCompilation previousSubmission,
-            Type submissionReturnType,
-            Type hostObjectType,
+            UnresolvedScriptType submissionReturnType,
+            UnresolvedScriptType hostObjectType,
             bool isSubmission,
             ReferenceManager referenceManager,
             bool reuseReferenceManager,
@@ -603,8 +635,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 _options,
                 this.ExternalReferences,
                 info?.PreviousScriptCompilation,
-                info?.ReturnTypeOpt,
-                info?.GlobalsType,
+                info?.UnresolvedScriptReturnType,
+                info?.UnresolvedScriptGlobalsType,
                 info != null,
                 _referenceManager,
                 reuseReferenceManager: true,
@@ -681,6 +713,49 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             return false;
+        }
+
+        internal override ITypeSymbol ResolveScriptType(UnresolvedScriptType unresolvedScriptType)
+        {
+            if (unresolvedScriptType.TypeSymbol is ITypeSymbol typeSymbol)
+            {
+                return typeSymbol;
+            }
+
+            if (unresolvedScriptType.ReflectionType is Type reflectionType)
+            {
+                TypeSymbol symbol = Assembly.GetTypeByReflectionType(
+                    reflectionType,
+                    includeReferences: true);
+
+                if (symbol is null)
+                {
+                    var mdName = MetadataTypeName.FromNamespaceAndTypeName(
+                        reflectionType.Namespace ?? string.Empty,
+                        reflectionType.Name,
+                        useCLSCompliantNameArityEncoding: true);
+
+                    symbol = new MissingMetadataTypeSymbol.TopLevelWithCustomErrorInfo(
+                        new MissingAssemblySymbol(AssemblyIdentity.FromAssemblyDefinition(reflectionType.Assembly)).Modules[0],
+                        ref mdName,
+                        CreateReflectionTypeNotFoundError(reflectionType),
+                        SpecialType.None);
+                }
+
+                return symbol;
+            }
+
+            if (unresolvedScriptType.TypeName is string typeName)
+            {
+                return this.GetTypeByMetadataName(typeName);
+            }
+
+            if (unresolvedScriptType.TypeFactory is Func<Compilation, UnresolvedScriptType> typeFactory)
+            {
+                return this.ResolveScriptType(typeFactory(this));
+            }
+
+            return null;
         }
 
         #endregion
@@ -1405,22 +1480,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (HostObjectType != null && (object)_lazyHostObjectTypeSymbol == null)
             {
-                TypeSymbol symbol = Assembly.GetTypeByReflectionType(HostObjectType, includeReferences: true);
-
-                if ((object)symbol == null)
-                {
-                    MetadataTypeName mdName = MetadataTypeName.FromNamespaceAndTypeName(HostObjectType.Namespace ?? String.Empty,
-                                                                                        HostObjectType.Name,
-                                                                                        useCLSCompliantNameArityEncoding: true);
-
-                    symbol = new MissingMetadataTypeSymbol.TopLevelWithCustomErrorInfo(
-                        new MissingAssemblySymbol(AssemblyIdentity.FromAssemblyDefinition(HostObjectType.GetTypeInfo().Assembly)).Modules[0],
-                        ref mdName,
-                        CreateReflectionTypeNotFoundError(HostObjectType),
-                        SpecialType.None);
-                }
-
-                Interlocked.CompareExchange(ref _lazyHostObjectTypeSymbol, symbol, null);
+                Interlocked.CompareExchange(
+                    ref _lazyHostObjectTypeSymbol,
+                    (TypeSymbol)this.ResolveScriptType(HostObjectType),
+                    null);
             }
 
             return _lazyHostObjectTypeSymbol;

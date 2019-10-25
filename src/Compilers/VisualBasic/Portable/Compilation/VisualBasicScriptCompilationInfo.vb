@@ -7,7 +7,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
 
         Public Shadows ReadOnly Property PreviousScriptCompilation As VisualBasicCompilation
 
-        Friend Sub New(previousCompilationOpt As VisualBasicCompilation, returnType As Type, globalsType As Type)
+        Friend Sub New(previousCompilationOpt As VisualBasicCompilation, returnType As UnresolvedScriptType, globalsType As UnresolvedScriptType)
             MyBase.New(returnType, globalsType)
 
             Debug.Assert(previousCompilationOpt Is Nothing OrElse previousCompilationOpt.HostObjectType Is globalsType)
@@ -21,7 +21,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
         End Property
 
         Public Shadows Function WithPreviousScriptCompilation(compilation As VisualBasicCompilation) As VisualBasicScriptCompilationInfo
-            Return If(compilation Is PreviousScriptCompilation, Me, New VisualBasicScriptCompilationInfo(compilation, ReturnTypeOpt, GlobalsType))
+            Return If(compilation Is PreviousScriptCompilation, Me, New VisualBasicScriptCompilationInfo(compilation, UnresolvedScriptReturnType, UnresolvedScriptGlobalsType))
         End Function
 
         Friend Overrides Function CommonWithPreviousScriptCompilation(compilation As Compilation) As ScriptCompilationInfo

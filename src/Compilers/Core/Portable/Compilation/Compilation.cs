@@ -116,7 +116,7 @@ namespace Microsoft.CodeAnalysis
         /// </summary>
         public abstract string Language { get; }
 
-        internal static void ValidateScriptCompilationParameters(Compilation previousScriptCompilation, Type returnType, ref Type globalsType)
+        internal static void ValidateScriptCompilationParameters(Compilation previousScriptCompilation, UnresolvedScriptType returnType, ref UnresolvedScriptType globalsType)
         {
             if (globalsType != null && !IsValidHostObjectType(globalsType))
             {
@@ -379,28 +379,48 @@ namespace Microsoft.CodeAnalysis
         /// <summary>
         /// The type object that represents the type of submission result the host requested.
         /// </summary>
-        internal Type SubmissionReturnType => ScriptCompilationInfo?.ReturnTypeOpt;
+        internal UnresolvedScriptType SubmissionReturnType => ScriptCompilationInfo?.UnresolvedScriptReturnType;
 
-        internal static bool IsValidSubmissionReturnType(Type type)
+        internal static bool IsValidSubmissionReturnType(UnresolvedScriptType unresolvedType)
         {
-            return !(type == typeof(void) || type.IsByRef || type.GetTypeInfo().ContainsGenericParameters);
+            if (unresolvedType.ReflectionType is Type type)
+            {
+                return !(type == typeof(void) || type.IsByRef || type.GetTypeInfo().ContainsGenericParameters);
+            }
+            else if (unresolvedType.TypeSymbol is INamedTypeSymbol typeSymbol)
+            {
+                throw new NotImplementedException();
+            }
+
+            return false;
         }
 
         /// <summary>
         /// The type of the globals object or null if not specified for this compilation.
         /// </summary>
-        internal Type HostObjectType => ScriptCompilationInfo?.GlobalsType;
+        internal UnresolvedScriptType HostObjectType => ScriptCompilationInfo?.UnresolvedScriptGlobalsType;
 
-        internal static bool IsValidHostObjectType(Type type)
+        internal static bool IsValidHostObjectType(UnresolvedScriptType scriptType)
         {
-            var info = type.GetTypeInfo();
-            return !(info.IsValueType || info.IsPointer || info.IsByRef || info.ContainsGenericParameters);
+            if (scriptType.ReflectionType is Type type)
+            {
+                var info = type.GetTypeInfo();
+                return !(info.IsValueType || info.IsPointer || info.IsByRef || info.ContainsGenericParameters);
+            }
+            else if (scriptType.TypeSymbol is INamedTypeSymbol typeSymbol)
+            {
+                throw new NotImplementedException();
+            }
+
+            return false;
         }
 
         internal abstract bool HasSubmissionResult();
 
         public Compilation WithScriptCompilationInfo(ScriptCompilationInfo info) => CommonWithScriptCompilationInfo(info);
         protected abstract Compilation CommonWithScriptCompilationInfo(ScriptCompilationInfo info);
+
+        internal abstract ITypeSymbol ResolveScriptType(UnresolvedScriptType unresolvedScriptType);
 
         #endregion
 
