@@ -23,11 +23,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             // We currently pack everything into a 32 bit int with the following layout:
             //
-            // |   |s|r|q|z|xxxxxxxxxxxxxxxxxxxxxxx|wwwww|
+            // |  |s|r|q|z|xxxxxxxxxxxxxxxxxxxxxxxx|wwwww|
             // 
             // w = method kind.  5 bits.
             //
-            // x = modifiers.  23 bits.
+            // x = modifiers.  24 bits.
             //
             // z = isExtensionMethod. 1 bit.
             //
@@ -41,7 +41,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             private const int DeclarationModifiersOffset = 5;
 
             private const int MethodKindMask = 0x1F;
-            private const int DeclarationModifiersMask = 0x7FFFFF;
+            private const int DeclarationModifiersMask = 0xFFFFFF;
 
             private const int IsExtensionMethodBit = 1 << 28;
             private const int IsMetadataVirtualIgnoringInterfaceChangesBit = 1 << 29;

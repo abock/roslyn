@@ -32,3 +32,4 @@ virtual Microsoft.CodeAnalysis.Operations.OperationVisitor.VisitUsingDeclaration
 virtual Microsoft.CodeAnalysis.Operations.OperationVisitor<TArgument, TResult>.VisitPropertySubpattern(Microsoft.CodeAnalysis.Operations.IPropertySubpatternOperation operation, TArgument argument) -> TResult
 virtual Microsoft.CodeAnalysis.Operations.OperationVisitor<TArgument, TResult>.VisitRecursivePattern(Microsoft.CodeAnalysis.Operations.IRecursivePatternOperation operation, TArgument argument) -> TResult
 virtual Microsoft.CodeAnalysis.Operations.OperationVisitor<TArgument, TResult>.VisitUsingDeclaration(Microsoft.CodeAnalysis.Operations.IUsingDeclarationOperation operation, TArgument argument) -> TResult
+Microsoft.CodeAnalysis.ISymbol.IsClass.get -> bool

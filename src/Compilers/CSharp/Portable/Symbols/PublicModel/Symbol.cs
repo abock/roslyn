@@ -204,6 +204,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
             get { return UnderlyingSymbol.IsStatic; }
         }
 
+        bool ISymbol.IsClass => UnderlyingSymbol.IsClass;
+
         bool ISymbol.IsVirtual
         {
             get { return UnderlyingSymbol.IsVirtual; }

@@ -970,8 +970,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
             else if (IsStatic && (IsOverride || IsVirtual || IsAbstract))
             {
-                // A static member '{0}' cannot be marked as override, virtual, or abstract
-                diagnostics.Add(ErrorCode.ERR_StaticNotVirtual, location, this);
+                if (IsOverride || IsVirtual || !ContainingType.IsInterface)
+                {
+                    // A static member '{0}' cannot be marked as override, virtual, or abstract
+                    diagnostics.Add(ErrorCode.ERR_StaticNotVirtual, location, this);
+                }
             }
             else if (IsStatic && HasReadOnlyModifier)
             {

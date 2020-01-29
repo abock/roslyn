@@ -1030,16 +1030,24 @@ tryAgain:
                     }
 
                     goto default;
+                case SyntaxKind.ClassKeyword:
+                    if (contextualKind == SyntaxKind.InterfaceKeyword)
+                    {
+                        Console.WriteLine("GOT CONTEXTUAL CLASS KW");
+                        return DeclarationModifiers.Class;
+                    }
+
+                    goto default;
                 default:
                     return DeclarationModifiers.None;
             }
         }
 
-        private void ParseModifiers(SyntaxListBuilder tokens, bool forAccessors)
+        private void ParseModifiers(SyntaxListBuilder tokens, bool forAccessors, SyntaxKind contextualKind = SyntaxKind.None)
         {
             while (true)
             {
-                var newMod = GetModifier(this.CurrentToken);
+                var newMod = GetModifier(this.CurrentToken.Kind, contextualKind);
                 if (newMod == DeclarationModifiers.None)
                 {
                     break;
@@ -1113,6 +1121,10 @@ tryAgain:
                             return;
                         }
 
+                        modTok = ConvertToKeyword(this.EatToken());
+                        modTok = CheckFeatureAvailability(modTok, MessageID.IDS_FeatureAsync);
+                        break;
+                    case DeclarationModifiers.Class:
                         modTok = ConvertToKeyword(this.EatToken());
                         modTok = CheckFeatureAvailability(modTok, MessageID.IDS_FeatureAsync);
                         break;
@@ -1972,6 +1984,8 @@ tryAgain:
                 //
                 if (acceptStatement)
                 {
+                    Console.WriteLine("ACCEPT STATEMENT tok: {0}", this.CurrentToken.Kind);
+
                     switch (this.CurrentToken.Kind)
                     {
                         case SyntaxKind.UnsafeKeyword:
@@ -2006,11 +2020,19 @@ tryAgain:
                     }
                 }
 
+                Console.WriteLine("PARENT: {0}", parentKind);
+
                 // All modifiers that might start an expression are processed above.
-                this.ParseModifiers(modifiers, forAccessors: false);
+                this.ParseModifiers(modifiers, forAccessors: false, contextualKind: parentKind);
                 if (modifiers.Count > 0)
                 {
                     acceptStatement = false;
+                }
+
+                Console.WriteLine("MODS {0}", modifiers.Count);
+                for (int i = 0; i < modifiers.Count; i++)
+                {
+                    Console.WriteLine("  MOD: {0}", modifiers[0]);
                 }
 
                 // Check for constructor form

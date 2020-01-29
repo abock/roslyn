@@ -33,14 +33,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // | |d|yy|xxxxxxxxxxxxxxxxxxxxxxx|wwwwww|
             //
             // w = special type.  6 bits.
-            // x = modifiers.  23 bits.
+            // x = modifiers.  24 bits.
             // y = IsManagedType.  2 bits.
             // d = FieldDefinitionsNoted. 1 bit
             private const int SpecialTypeOffset = 0;
             private const int SpecialTypeSize = 6;
 
             private const int DeclarationModifiersOffset = SpecialTypeSize;
-            private const int DeclarationModifiersSize = 23;
+            private const int DeclarationModifiersSize = 24;
 
             private const int ManagedKindOffset = DeclarationModifiersOffset + DeclarationModifiersSize;
             private const int ManagedKindSize = 2;

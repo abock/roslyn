@@ -29,7 +29,8 @@ namespace Microsoft.CodeAnalysis.Editing
             bool isPartial = false,
             bool isAsync = false,
             bool isWriteOnly = false,
-            bool isRef = false)
+            bool isRef = false,
+            bool isClass = false)
             : this(
                   (isStatic ? Modifiers.Static : Modifiers.None) |
                   (isAbstract ? Modifiers.Abstract : Modifiers.None) |
@@ -43,7 +44,8 @@ namespace Microsoft.CodeAnalysis.Editing
                   (isWithEvents ? Modifiers.WithEvents : Modifiers.None) |
                   (isPartial ? Modifiers.Partial : Modifiers.None) |
                   (isAsync ? Modifiers.Async : Modifiers.None) |
-                  (isRef ? Modifiers.Ref : Modifiers.None))
+                  (isRef ? Modifiers.Ref : Modifiers.None),
+                  (isClass ? Modifiers.Class : Modifiers.None))
         {
         }
 
@@ -91,6 +93,8 @@ namespace Microsoft.CodeAnalysis.Editing
         public bool IsWriteOnly => (_modifiers & Modifiers.WriteOnly) != 0;
 
         public bool IsRef => (_modifiers & Modifiers.Ref) != 0;
+
+        public bool IsClass => (_modifiers & Modifiers.Class) != 0;
 
         public DeclarationModifiers WithIsStatic(bool isStatic)
         {
@@ -162,6 +166,11 @@ namespace Microsoft.CodeAnalysis.Editing
             return new DeclarationModifiers(SetFlag(_modifiers, Modifiers.Ref, isRef));
         }
 
+        public DeclarationModifiers WithIsClass(bool isClass)
+        {
+            return new DeclarationModifiers(SetFlag(_modifiers, Modifiers.Class, isClass));
+        }
+
         private static Modifiers SetFlag(Modifiers existing, Modifiers modifier, bool isSet)
         {
             return isSet ? (existing | modifier) : (existing & ~modifier);
@@ -185,6 +194,7 @@ namespace Microsoft.CodeAnalysis.Editing
             Async = 0x0800,
             WriteOnly = 0x1000,
             Ref = 0x2000,
+            Class = 0x4000
         }
 
         public static DeclarationModifiers None => default;
@@ -203,6 +213,7 @@ namespace Microsoft.CodeAnalysis.Editing
         public static DeclarationModifiers Async => new DeclarationModifiers(Modifiers.Async);
         public static DeclarationModifiers WriteOnly => new DeclarationModifiers(Modifiers.WriteOnly);
         public static DeclarationModifiers Ref => new DeclarationModifiers(Modifiers.Ref);
+        public static DeclarationModifiers Class => new DeclarationModifiers(Modifiers.Class);
 
         public static DeclarationModifiers operator |(DeclarationModifiers left, DeclarationModifiers right)
         {

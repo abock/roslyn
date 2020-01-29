@@ -103,6 +103,11 @@ namespace Microsoft.CodeAnalysis
         bool IsStatic { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the symbol is a static contract member on an interface definition.
+        /// </summary>
+        bool IsClass { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the symbol is virtual.
         /// </summary>
         bool IsVirtual { get; }

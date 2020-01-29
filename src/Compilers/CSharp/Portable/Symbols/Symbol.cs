@@ -380,6 +380,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         public abstract bool IsStatic { get; }
 
         /// <summary>
+        /// Returns true if this symbol is "class"; i.e., declared with the <c>class</c> modifier.
+        /// </summary>
+        public abstract bool IsClass { get; }
+
+        /// <summary>
         /// Returns true if this symbol is "virtual", has an implementation, and does not override a
         /// base class member; i.e., declared with the <c>virtual</c> modifier. Does not return true for
         /// members declared as abstract or override.
