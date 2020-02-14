@@ -1105,7 +1105,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             {
                 receiver = VisitCallReceiver(receiver);
             }
-            else
+            else if (!node.Method.IsAbstract)
             {
                 // TODO: for some reason receiver could be not null even if method is static...
                 //       it seems wrong, ignore for now.

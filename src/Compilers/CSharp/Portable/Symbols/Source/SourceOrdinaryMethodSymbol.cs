@@ -1003,6 +1003,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 diagnostics.Add(ErrorCode.ERR_VirtualPrivate, location, this);
             }
+            else if (IsStatic && IsAbstract && ContainingType.IsInterface)
+            {
+                // TODO: ensure the runtime supports this. cf:
+                // Binder.CheckFeatureAvailability(declarator, MessageID.IDS_DefaultInterfaceImplementation, diagnostics, ErrorLocation);
+                // if (!ContainingAssembly.RuntimeSupportsDefaultInterfaceImplementation)
+                // {
+                //     diagnostics.Add(ErrorCode.ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation, ErrorLocation);
+                // }
+            }
             else if (IsStatic && (IsOverride || IsVirtual || IsAbstract))
             {
                 // A static member '{0}' cannot be marked as override, virtual, or abstract

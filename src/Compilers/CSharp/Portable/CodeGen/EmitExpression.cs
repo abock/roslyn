@@ -1496,7 +1496,9 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
 
             if (!method.RequiresInstanceReceiver)
             {
-                callKind = CallKind.Call;
+                callKind = method.IsStatic && method.IsAbstract && receiver is object
+                    ? CallKind.ConstrainedCallVirt
+                    : CallKind.Call;
             }
             else
             {

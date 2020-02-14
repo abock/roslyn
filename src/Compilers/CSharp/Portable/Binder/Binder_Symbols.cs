@@ -2323,5 +2323,19 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             return true;
         }
+
+        internal static bool CheckAbstractStaticInterfaceMembersAvailability(SyntaxNode declarationSyntax, TypeSymbol containingType, DiagnosticBag diagnostics)
+        {
+            var location = declarationSyntax.GetLocation();
+            var featureAvailable = Binder.CheckFeatureAvailability(declarationSyntax, MessageID.IDS_AbstractStaticInterfaceMembers, diagnostics, location);
+
+            if (!containingType.ContainingAssembly.RuntimeSupportsAbstractStaticInterfaceMembers)
+            {
+                diagnostics.Add(ErrorCode.ERR_RuntimeDoesNotSupportAbstractStaticInterfaceMembers, location);
+                return false;
+            }
+
+            return featureAvailable;
+        }
     }
 }

@@ -152,6 +152,8 @@ namespace Microsoft.CodeAnalysis
 
         System_Runtime_CompilerServices_RuntimeFeature__DefaultImplementationsOfInterfaces,
 
+        System_Runtime_CompilerServices_RuntimeFeature__AbstractStaticInterfaceMembers,
+
         Count
     }
 }

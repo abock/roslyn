@@ -117,6 +117,7 @@ namespace Microsoft.CodeAnalysis
         {
             ConcurrentQueue<Diagnostic> bag = this.Bag;
             bag.Enqueue(diag);
+            // throw new Exception(diag.ToString());
         }
 
         /// <summary>

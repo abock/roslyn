@@ -40,6 +40,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 DeclarationModifiers.Extern |
                 DeclarationModifiers.Unsafe;
 
+            if (containingType.IsInterface)
+            {
+                // FIXME: diagnostic if we aren't on a runtime that supports abstract static interface members
+                allowedModifiers |= DeclarationModifiers.Abstract;
+            }
+
             bool modifierErrors;
             var declarationModifiers = ModifierUtils.MakeAndCheckNontypeMemberModifiers(
                 syntax.Modifiers, defaultAccess, allowedModifiers, location, diagnostics, out modifierErrors);
@@ -73,8 +79,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // SPEC: static modifier
             if (this.DeclaredAccessibility != Accessibility.Public || !this.IsStatic)
             {
-                // CS0558: User-defined operator '...' must be declared static and public
-                diagnostics.Add(ErrorCode.ERR_OperatorsMustBeStatic, this.Locations[0], this);
+                // Abstract Static Interface Members Prototype: static operators declared
+                // in interfaces do not need an explicit public accessibility modifier.
+                if (!this.ContainingType.IsInterface)
+                {
+                    // CS0558: User-defined operator '...' must be declared static and public
+                    diagnostics.Add(ErrorCode.ERR_OperatorsMustBeStatic, this.Locations[0], this);
+                }
             }
 
             // SPEC: Because an external operator provides no actual implementation, 
@@ -514,6 +525,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private bool MatchesContainingType(TypeSymbol type)
         {
+            if (this.ContainingType.IsInterface &&
+                this.ContainingType.IsGenericType &&
+                this.ContainingType.TypeParameters.Length == 1 &&
+                type.Equals(this.ContainingType.TypeParameters[0], ComparisonForUserDefinedOperators))
+            {
+                // FIXME: check runtime support for abstract static interface members
+                return true;
+            }
+
             return type.Equals(this.ContainingType, ComparisonForUserDefinedOperators);
         }
 

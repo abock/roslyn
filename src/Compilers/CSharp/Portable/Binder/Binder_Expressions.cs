@@ -5899,9 +5899,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case BoundKind.TypeExpression:
                         {
                             Debug.Assert((object)leftType != null);
-                            if (leftType.TypeKind == TypeKind.TypeParameter)
+
+                            if (leftType.TypeKind == TypeKind.TypeParameter &&
+                                !CheckAbstractStaticInterfaceMembersAvailability(boundLeft.Syntax, leftType, diagnostics))
                             {
-                                Error(diagnostics, ErrorCode.ERR_BadSKunknown, boundLeft.Syntax, leftType, MessageID.IDS_SK_TYVAR.Localize());
                                 return BadExpression(node, LookupResultKind.NotAValue, boundLeft);
                             }
                             else if (this.EnclosingNameofArgument == node)
