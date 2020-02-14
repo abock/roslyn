@@ -517,6 +517,11 @@
         <target state="translated">{0}' 파일 이름이 비어 있거나, 잘못된 문자가 있거나, 절대 경로가 없는 드라이브 사양이 있거나, 너무 깁니다.</target>
         <note />
       </trans-unit>
+      <trans-unit id="IDS_AbstractStaticInterfaceMembers">
+        <source>abstract static interface members</source>
+        <target state="new">abstract static interface members</target>
+        <note />
+      </trans-unit>
       <trans-unit id="IDS_CSCHelp">
         <source>
                              Visual C# Compiler Options

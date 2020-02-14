@@ -517,6 +517,11 @@
         <target state="translated">Le nom de fichier '{0}' est vide, contient des caractères non valides, spécifie un lecteur sans chemin d'accès absolu ou est trop long</target>
         <note />
       </trans-unit>
+      <trans-unit id="IDS_AbstractStaticInterfaceMembers">
+        <source>abstract static interface members</source>
+        <target state="new">abstract static interface members</target>
+        <note />
+      </trans-unit>
       <trans-unit id="IDS_CSCHelp">
         <source>
                              Visual C# Compiler Options

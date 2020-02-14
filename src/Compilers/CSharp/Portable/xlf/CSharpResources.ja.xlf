@@ -517,6 +517,11 @@
         <target state="translated">ファイル名 '{0}' は、空である、無効な文字を含んでいる、絶対パスが指定されていないドライブ指定がある、または長すぎるかのいずれかです。</target>
         <note />
       </trans-unit>
+      <trans-unit id="IDS_AbstractStaticInterfaceMembers">
+        <source>abstract static interface members</source>
+        <target state="new">abstract static interface members</target>
+        <note />
+      </trans-unit>
       <trans-unit id="IDS_CSCHelp">
         <source>
                              Visual C# Compiler Options

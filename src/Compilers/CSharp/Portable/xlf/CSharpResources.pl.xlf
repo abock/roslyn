@@ -517,6 +517,11 @@
         <target state="translated">Nazwa pliku „{0}” jest pusta, zawiera nieprawidłowe znaki, zawiera specyfikację dysku bez bezwzględnej ścieżki lub jest za długa</target>
         <note />
       </trans-unit>
+      <trans-unit id="IDS_AbstractStaticInterfaceMembers">
+        <source>abstract static interface members</source>
+        <target state="new">abstract static interface members</target>
+        <note />
+      </trans-unit>
       <trans-unit id="IDS_CSCHelp">
         <source>
                              Visual C# Compiler Options

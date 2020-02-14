@@ -517,6 +517,11 @@
         <target state="translated">El nombre de archivo '{0}' está vacío, contiene caracteres no válidos, tiene una especificación de unidad sin ruta de acceso absoluta o es demasiado largo</target>
         <note />
       </trans-unit>
+      <trans-unit id="IDS_AbstractStaticInterfaceMembers">
+        <source>abstract static interface members</source>
+        <target state="new">abstract static interface members</target>
+        <note />
+      </trans-unit>
       <trans-unit id="IDS_CSCHelp">
         <source>
                              Visual C# Compiler Options
