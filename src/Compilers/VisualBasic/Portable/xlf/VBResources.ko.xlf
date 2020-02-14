@@ -27,6 +27,11 @@
         <target state="translated">'{0}' 형식에는 기본 인터페이스 멤버의 재추상화가 있으므로 해당 형식을 포함할 수 없습니다. 'Interop 형식 포함' 속성을 false로 설정해 보세요.</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_RuntimeDoesNotSupportAbstractStaticInterfaceMembers">
+        <source>Target runtime doesn't support abstract static interface members.</source>
+        <target state="new">Target runtime doesn't support abstract static interface members.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation">
         <source>Target runtime doesn't support default interface implementation.</source>
         <target state="translated">대상 런타임이 기본 인터페이스 구현을 지원하지 않습니다.</target>

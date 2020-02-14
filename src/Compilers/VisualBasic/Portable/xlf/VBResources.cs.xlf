@@ -27,6 +27,11 @@
         <target state="translated">Typ {0} nemůže být vložený, protože má reabstrakci člena ze základního rozhraní. Zvažte nastavení vlastnosti Vložit typy spolupráce na hodnotu false.</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_RuntimeDoesNotSupportAbstractStaticInterfaceMembers">
+        <source>Target runtime doesn't support abstract static interface members.</source>
+        <target state="new">Target runtime doesn't support abstract static interface members.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation">
         <source>Target runtime doesn't support default interface implementation.</source>
         <target state="translated">Cílový modul runtime nepodporuje implementaci výchozího rozhraní.</target>

@@ -1751,6 +1751,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
         ERR_ReAbstractionInNoPIAType = 37308
         ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation = 37309
         ERR_RuntimeDoesNotSupportProtectedAccessForInterfaceMember = 37310
+        ERR_RuntimeDoesNotSupportAbstractStaticInterfaceMembers = 37311
 
         '// WARNINGS BEGIN HERE
         WRN_UseOfObsoleteSymbol2 = 40000

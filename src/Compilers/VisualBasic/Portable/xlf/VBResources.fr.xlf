@@ -27,6 +27,11 @@
         <target state="translated">Impossible d'incorporer le type '{0}', car il a une nouvelle abstraction d'un membre de l'interface de base. Affectez la valeur false à la propriété 'Incorporer les types interop'.</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_RuntimeDoesNotSupportAbstractStaticInterfaceMembers">
+        <source>Target runtime doesn't support abstract static interface members.</source>
+        <target state="new">Target runtime doesn't support abstract static interface members.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation">
         <source>Target runtime doesn't support default interface implementation.</source>
         <target state="translated">Le runtime cible ne prend pas en charge l'implémentation d'interface par défaut.</target>

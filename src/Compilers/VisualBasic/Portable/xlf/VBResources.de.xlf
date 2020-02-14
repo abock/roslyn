@@ -27,6 +27,11 @@
         <target state="translated">Der Typ "{0}" kann nicht eingebettet werden, weil er eine Neuabstraktion eines Members aus der Basisschnittstelle aufweist. Legen Sie die Eigenschaft "Interoptypen einbetten" ggf. auf FALSE fest.</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_RuntimeDoesNotSupportAbstractStaticInterfaceMembers">
+        <source>Target runtime doesn't support abstract static interface members.</source>
+        <target state="new">Target runtime doesn't support abstract static interface members.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation">
         <source>Target runtime doesn't support default interface implementation.</source>
         <target state="translated">Die Standardschnittstellenimplementierung wird von der Zielruntime nicht unterstützt.</target>

@@ -27,6 +27,11 @@
         <target state="translated">Невозможно внедрить тип "{0}", так как он переопределяет абстракцию элемента базового интерфейса. Попробуйте задать для свойства "Внедрить типы взаимодействия" значение false (ложь).</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_RuntimeDoesNotSupportAbstractStaticInterfaceMembers">
+        <source>Target runtime doesn't support abstract static interface members.</source>
+        <target state="new">Target runtime doesn't support abstract static interface members.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation">
         <source>Target runtime doesn't support default interface implementation.</source>
         <target state="translated">Целевая среда выполнения не поддерживает реализацию интерфейса по умолчанию.</target>

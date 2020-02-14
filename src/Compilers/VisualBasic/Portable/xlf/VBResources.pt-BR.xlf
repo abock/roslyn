@@ -27,6 +27,11 @@
         <target state="translated">O tipo '{0}' não pode ser inserido porque tem uma nova abstração de um membro da interface base. Considere a configuração da propriedade 'Embed Interop Types' como false.</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_RuntimeDoesNotSupportAbstractStaticInterfaceMembers">
+        <source>Target runtime doesn't support abstract static interface members.</source>
+        <target state="new">Target runtime doesn't support abstract static interface members.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation">
         <source>Target runtime doesn't support default interface implementation.</source>
         <target state="translated">O runtime de destino não é compatível com a implementação de interface padrão.</target>

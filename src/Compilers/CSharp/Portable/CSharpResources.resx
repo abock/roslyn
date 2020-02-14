@@ -5993,4 +5993,7 @@ To remove the warning, you can use /reference instead (set the Embed Interop Typ
   <data name="ERR_ImplicitRangeIndexerWithName" xml:space="preserve">
     <value>Invocation of implicit Range Indexer cannot name the argument.</value>
   </data>
+  <data name="ERR_RuntimeDoesNotSupportAbstractStaticInterfaceMembers" xml:space="preserve">
+    <value>Target runtime doesn't support abstract static interface members.</value>
+  </data>
 </root>
